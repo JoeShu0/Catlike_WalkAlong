@@ -11,6 +11,18 @@ public class CameraRender
 
     CullingResults cullingResults;
 
+    static ShaderTagId unlitShaderTagID = new ShaderTagId("SRPDefaultUnlit");
+    static ShaderTagId[] LegacyShaderTagIds = {
+        new ShaderTagId("Always"),
+        new ShaderTagId("ForwardBase"),
+        new ShaderTagId("PrepassBase"),
+        new ShaderTagId("Vertex"),
+        new ShaderTagId("VertexLMRGBM"),
+        new ShaderTagId("VertexLM")
+    };
+
+    static Material errorMaterial;
+
     public void Render(ScriptableRenderContext IN_context, Camera IN_camera)
     {
         this.context = IN_context;
@@ -24,6 +36,7 @@ public class CameraRender
         Setup();
 
         DrawVidibleGeometry();
+        DrawUnsupportedShaders();
 
         //all action will be buffered and render action only begin after submit!
         Submit();
@@ -47,7 +60,41 @@ public class CameraRender
 
     void DrawVidibleGeometry()
     {
+        //draw opaque
+        var sortingSettings = new SortingSettings(camera) { 
+            criteria = SortingCriteria.CommonOpaque};
+        var drawingSettings = new DrawingSettings(unlitShaderTagID, sortingSettings);
+        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
+        context.DrawRenderers(
+            cullingResults, ref drawingSettings, ref filteringSettings);
+
+        //we sredrawing in order like opaque->skybox->tranparent
         context.DrawSkybox(camera);
+
+        //draw transparent
+        sortingSettings.criteria = SortingCriteria.CommonTransparent;
+        drawingSettings.sortingSettings = sortingSettings;
+        filteringSettings.renderQueueRange = RenderQueueRange.transparent;
+        context.DrawRenderers(
+            cullingResults, ref drawingSettings, ref filteringSettings);
+    }
+
+    void DrawUnsupportedShaders()
+    {
+        if(errorMaterial == null)
+        {
+            errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
+        }
+        
+        var drawingSettings = new DrawingSettings(LegacyShaderTagIds[0], new SortingSettings(camera)) { overrideMaterial = errorMaterial };
+        for(int i = 1; i < LegacyShaderTagIds.Length; i++)
+        {
+            drawingSettings.SetShaderPassName(i, LegacyShaderTagIds[i]);
+        }
+
+        var filteringSettings = FilteringSettings.defaultValue;
+        context.DrawRenderers(
+            cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
     void Submit()
@@ -77,4 +124,6 @@ public class CameraRender
         }
         return false;
     }
+
+    
 }
