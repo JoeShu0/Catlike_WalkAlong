@@ -24,7 +24,7 @@ public partial class CameraRender
         //change buffer name to he camera name
         PrepareBuffer();
         //add UI (WorldGeometry) to the scen camera, so we can see UI in editor view
-        //PrepareForSceneView();
+        PrepareForSceneView();
         if (!Cull())
         {
             return;

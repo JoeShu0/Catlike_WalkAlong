@@ -14,7 +14,7 @@ partial class CameraRender
 #if UNITY_EDITOR
 
     string SampleName { get; set; }
-
+    //get all the shadertagid for the legacy shaders
     static ShaderTagId[] LegacyShaderTagIds = {
         new ShaderTagId("Always"),
         new ShaderTagId("ForwardBase"),
@@ -37,11 +37,13 @@ partial class CameraRender
 
     partial void DrawUnsupportedShaders()
     {
+        //create Error material
         if (errorMaterial == null)
         {
             errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
         }
 
+        //Draw Legacy shaders using error shader
         var drawingSettings = new DrawingSettings(LegacyShaderTagIds[0], new SortingSettings(camera)) { overrideMaterial = errorMaterial };
         for (int i = 1; i < LegacyShaderTagIds.Length; i++)
         {
@@ -55,6 +57,7 @@ partial class CameraRender
 
     partial void PrepareForSceneView()
     {
+        //Add the UI as geo to render in SceneView camera. for betterUP
         if (camera.cameraType == CameraType.SceneView)
         {
             ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
@@ -70,7 +73,8 @@ partial class CameraRender
     }
 
 #else
-
+    //In Build, the buffer name will be fixed, All camera draws are nested into the same name
+    //and less MEM alloc
     const string SampleName = buffername;
 
 #endif
