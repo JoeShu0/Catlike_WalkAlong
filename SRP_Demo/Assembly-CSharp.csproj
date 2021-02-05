@@ -63,10 +63,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\CustomRP\Examples\MeshBall.cs" />
+    <Compile Include="Assets\CustomRP\Examples\PerObjectMaterialProperties.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CameraRender.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CameraRender.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipeline.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipelineAsset.cs" />
+    <None Include="Assets\CustomRP\ShaderLib\Common.hlsl" />
+    <None Include="Assets\CustomRP\Shader\UnlitPass.hlsl" />
+    <None Include="Assets\CustomRP\Shader\Unlit.shader" />
+    <None Include="Assets\CustomRP\ShaderLib\UnityInput.hlsl" />
     <Reference Include="UnityEngine">
       <HintPath>D:/Unity_Editor/2019.4.7f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
@@ -598,8 +604,17 @@
     <Reference Include="Unity.VSCode.Editor">
       <HintPath>D:/Unity_Editor/UnityProjects/CatLike/SRP_Demo/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Editor">
+      <HintPath>D:/Unity_Editor/UnityProjects/CatLike/SRP_Demo/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.Runtime">
+      <HintPath>D:/Unity_Editor/UnityProjects/CatLike/SRP_Demo/Library/ScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>D:/Unity_Editor/UnityProjects/CatLike/SRP_Demo/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
+      <HintPath>D:/Unity_Editor/UnityProjects/CatLike/SRP_Demo/Library/ScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>D:/Unity_Editor/UnityProjects/CatLike/SRP_Demo/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>

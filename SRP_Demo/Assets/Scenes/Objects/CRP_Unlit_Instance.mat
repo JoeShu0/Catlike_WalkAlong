@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_02
+  m_Name: CRP_Unlit_Instance
   m_Shader: {fileID: 4800000, guid: f4f0a2c846753194185584489d2fb452, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -73,7 +73,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaeColor: {r: 1, g: 1, b: 0, a: 1}
-    - _BaseColor: {r: 0.7830189, g: 0.62419903, b: 0.7179109, a: 1}
-    - _Color: {r: 0.0320669, g: 0.01214843, b: 0.8584906, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 0, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
