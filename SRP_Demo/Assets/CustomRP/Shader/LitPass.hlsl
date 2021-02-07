@@ -1,7 +1,10 @@
-﻿#ifndef CUSTOM_UNLIT_PASS_INCLUDED
-#define CUSTOM_UNLIT_PASS_INCLUDED
+﻿#ifndef CUSTOM_LIT_PASS_INCLUDED
+#define CUSTOM_LIT_PASS_INCLUDED
 
 #include "../ShaderLib/Common.hlsl"
+#include "../ShaderLib/Surface.hlsl"
+#include "../ShaderLib/Light.hlsl"
+#include "../ShaderLib/Lighting.hlsl"
 /*
 //Enable unity SRP Batcher forbuffer per material
 CBUFFER_START(UnityPerMaterial)
@@ -35,7 +38,7 @@ struct Varyings
 	UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-Varyings UnlitPassVertex(Attributes input)
+Varyings LitPassVertex(Attributes input)
 {
 	Varyings output;
 	//Setup the instance ID for Input
@@ -49,23 +52,33 @@ Varyings UnlitPassVertex(Attributes input)
 
 	float3 positionWS = TransformObjectToWorld(input.positionOS);
 	output.positionCS = TransformWorldToHClip(positionWS);
+
 	//transfer normal
 	output.normalWS = TransformObjectToWorldNormal(input.normalOS);
 	return output;
 }
 
-float4 UnlitPassFragment(Varyings input) : SV_TARGET 
+float4 LitPassFragment(Varyings input) : SV_TARGET 
 {
 	//Setup the instance ID for Input
 	UNITY_SETUP_INSTANCE_ID(input);
-
+	
 	float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
 	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
-	float4 Color = baseColor * baseMap;
+	float4 base = baseColor * baseMap;
+	
 #if defined(_CLIPPING)
 	clip(Color.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
 #endif
-	return Color;
+
+	Surface surface;
+	surface.normal = normalize(input.normalWS.xyz);
+	surface.color = base.rgb;
+	surface.alpha = base.a;
+
+	float3 color = GetLighting(surface);
+
+	return float4(color, surface.alpha);
 }
 
 #endif

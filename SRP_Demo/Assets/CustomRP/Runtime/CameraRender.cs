@@ -6,12 +6,15 @@ public partial class CameraRender
     ScriptableRenderContext context;
     Camera camera;
 
+    Lighting lighting = new Lighting();
+
     const string buffername = "Render Camera";
     CommandBuffer buffer = new CommandBuffer { name = buffername };
 
     CullingResults cullingResults;
 
-    static ShaderTagId unlitShaderTagID = new ShaderTagId("SRPDefaultUnlit");
+    static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+    static ShaderTagId LitShaderTadId = new ShaderTagId("CustomLit");
     
 
 
@@ -31,6 +34,8 @@ public partial class CameraRender
         }
 
         Setup();
+        //get sun and transfer DirLight data to GPU
+        lighting.Setup(context, cullingResults);
 
         DrawVidibleGeometry(useDynameicBatching, useGPUInstancing);
 
@@ -71,8 +76,11 @@ public partial class CameraRender
         //draw opaque
         var sortingSettings = new SortingSettings(camera) { 
             criteria = SortingCriteria.CommonOpaque};
-        var drawingSettings = new DrawingSettings(unlitShaderTagID, sortingSettings) {
+        //drawing setting what kind of shader should be draw
+        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings) {
             enableDynamicBatching = useDynameicBatching, enableInstancing = useGPUInstancing};
+        drawingSettings.SetShaderPassName(1, LitShaderTadId);
+
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         context.DrawRenderers(
             cullingResults, ref drawingSettings, ref filteringSettings);
