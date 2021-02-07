@@ -4,6 +4,7 @@
 #include "../ShaderLib/Common.hlsl"
 #include "../ShaderLib/Surface.hlsl"
 #include "../ShaderLib/Light.hlsl"
+#include "../ShaderLib/BRDF.hlsl"
 #include "../ShaderLib/Lighting.hlsl"
 /*
 //Enable unity SRP Batcher forbuffer per material
@@ -18,6 +19,8 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
 	UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+	UNITY_DEFINE_INSTANCED_PROP(float, _Metallic)
+	UNITY_DEFINE_INSTANCED_PROP(float, _Smoothness)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 // the error assert 0==m_CurrentBuildInBindMask may cased by the GPU instance option os not on in the material
 
@@ -75,8 +78,12 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.normal = normalize(input.normalWS.xyz);
 	surface.color = base.rgb;
 	surface.alpha = base.a;
+	surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
+	surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
 
-	float3 color = GetLighting(surface);
+	BRDF brdf = GetBRDF(surface);
+
+	float3 color = GetLighting(surface, brdf);
 
 	return float4(color, surface.alpha);
 }
