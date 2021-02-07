@@ -16,7 +16,7 @@ public partial class CameraRender
 
 
 
-    public void Render(ScriptableRenderContext IN_context, Camera IN_camera)
+    public void Render(ScriptableRenderContext IN_context, Camera IN_camera, bool useDynameicBatching, bool useGPUInstancing)
     {
         this.context = IN_context;
         this.camera = IN_camera;
@@ -32,7 +32,7 @@ public partial class CameraRender
 
         Setup();
 
-        DrawVidibleGeometry();
+        DrawVidibleGeometry(useDynameicBatching, useGPUInstancing);
 
         //this makes the Legacy shader draw upon the tranparent object
         //makes it wired, but they are not supported who cares~
@@ -66,12 +66,13 @@ public partial class CameraRender
         
     }
 
-    void DrawVidibleGeometry()
+    void DrawVidibleGeometry(bool useDynameicBatching, bool useGPUInstancing)
     {
         //draw opaque
         var sortingSettings = new SortingSettings(camera) { 
             criteria = SortingCriteria.CommonOpaque};
-        var drawingSettings = new DrawingSettings(unlitShaderTagID, sortingSettings);
+        var drawingSettings = new DrawingSettings(unlitShaderTagID, sortingSettings) {
+            enableDynamicBatching = useDynameicBatching, enableInstancing = useGPUInstancing};
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         context.DrawRenderers(
             cullingResults, ref drawingSettings, ref filteringSettings);
