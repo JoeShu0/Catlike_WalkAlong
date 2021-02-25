@@ -15,11 +15,9 @@ public partial class CameraRender
 
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
     static ShaderTagId LitShaderTadId = new ShaderTagId("CustomLit");
-    
 
 
-
-    public void Render(ScriptableRenderContext IN_context, Camera IN_camera, bool useDynameicBatching, bool useGPUInstancing)
+    public void Render(ScriptableRenderContext IN_context, Camera IN_camera, bool useDynameicBatching, bool useGPUInstancing, ShadowSettings shadowSetting)
     {
         this.context = IN_context;
         this.camera = IN_camera;
@@ -28,14 +26,14 @@ public partial class CameraRender
         PrepareBuffer();
         //add UI (WorldGeometry) to the scen camera, so we can see UI in editor view
         PrepareForSceneView();
-        if (!Cull())
+        if (!Cull(shadowSetting.maxDistance))
         {
             return;
         }
 
         Setup();
         //get sun and transfer DirLight data to GPU
-        lighting.Setup(context, cullingResults);
+        lighting.Setup(context, cullingResults, shadowSetting);
 
         DrawVidibleGeometry(useDynameicBatching, useGPUInstancing);
 
@@ -44,6 +42,8 @@ public partial class CameraRender
         DrawUnsupportedShaders();
 
         DrawGizmos();
+
+        lighting.CleanUp();
 
         //all action will be buffered and render action only begin after submit!
         Submit();
@@ -116,11 +116,12 @@ public partial class CameraRender
         buffer.Clear();
     }
 
-    bool Cull()
+    bool Cull(float maxShadowDistance)
     {
         ScriptableCullingParameters p;
         if (camera.TryGetCullingParameters(out p))
         {
+            p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);//set shadow dist, from renderPPAsset
             cullingResults = context.Cull(ref p);//ref here is just to prevent duplicate the P
             return true;
         }

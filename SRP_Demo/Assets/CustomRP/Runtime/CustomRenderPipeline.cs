@@ -7,19 +7,22 @@ public class CustomRenderPipeline : RenderPipeline
 
     bool useDynameicBatching, useGPUInstancing;
 
-    public CustomRenderPipeline(bool useDynameicBatching, bool useGPUInstancing, bool useSRPBatcher)
+    ShadowSettings shadowsetting;
+
+    public CustomRenderPipeline(bool useDynameicBatching, bool useGPUInstancing, bool useSRPBatcher, ShadowSettings shadowsetting)
     {
         this.useDynameicBatching = useDynameicBatching;
         this.useGPUInstancing = useGPUInstancing;
         GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
         GraphicsSettings.lightsUseLinearIntensity = true;
+        this.shadowsetting = shadowsetting;
     }
 
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {
         foreach(Camera camera in cameras)
         {
-            render.Render(context, camera, useDynameicBatching, useGPUInstancing);
+            render.Render(context, camera, useDynameicBatching, useGPUInstancing, shadowsetting);
         }
     }
 }
