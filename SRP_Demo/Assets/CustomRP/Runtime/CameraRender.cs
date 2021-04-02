@@ -24,17 +24,23 @@ public partial class CameraRender
 
         //change buffer name to he camera name
         PrepareBuffer();
-        //add UI (WorldGeometry) to the scen camera, so we can see UI in editor view
+        //add UI (WorldGeometry) to the scene camera, so we can see UI in editor view
         PrepareForSceneView();
         if (!Cull(shadowSetting.maxDistance))
         {
             return;
         }
 
-        Setup();
-        //get sun and transfer DirLight data to GPU
-        lighting.Setup(context, cullingResults, shadowSetting);
 
+        buffer.BeginSample(SampleName);//Include lights and shadow rendering in main cam profile 
+        ExecuteBuffer();
+        //get transfer DirLight data to GPU
+        //Setup shadow RT and shadow rendering
+        lighting.Setup(context, cullingResults, shadowSetting);
+        buffer.EndSample(SampleName);
+
+        //Setup rendertarget for normal boject rendering
+        Setup();
         DrawVidibleGeometry(useDynameicBatching, useGPUInstancing);
 
         //this makes the Legacy shader draw upon the tranparent object
@@ -43,6 +49,7 @@ public partial class CameraRender
 
         DrawGizmos();
 
+        //cleanup light(null) and shadows(render target)
         lighting.CleanUp();
 
         //all action will be buffered and render action only begin after submit!

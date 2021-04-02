@@ -34,6 +34,25 @@
             #include "LitPass.hlsl"
             ENDHLSL
         }
+
+        Pass
+        {
+            Tags
+            {
+                 "LightingMode" = "ShadowCaster"//add a pass, only shader with this pass is drawn in shadow buffer
+            }
+
+            ColorMask 0
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma shader_feature _CLIPPING//make unity complie 2 shader with and without _CLIPPING define
+            #pragma multi_compile_instancing//make unity complie 2 shader with and without GPU instancing
+            #pragma vertex ShadowCasterPassVertex
+            #pragma fragment ShadowCasterPassFragment
+            #include "ShadowCasterPass.hlsl"
+            ENDHLSL
+        }
     }
     CustomEditor "CustomShaderGUI"
 }

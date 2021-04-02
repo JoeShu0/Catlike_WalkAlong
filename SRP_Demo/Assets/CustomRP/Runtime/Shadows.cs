@@ -52,7 +52,8 @@ public class Shadows
     {
         if (ShadowedDirectionalLightCount < maxShadoweDirectionalLightCount && 
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
-            cullingResults.GetShadowCasterBounds(visibleLightIndex,out Bounds b)) //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
+            cullingResults.GetShadowCasterBounds(visibleLightIndex,out Bounds b)) 
+            //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
         {
             ShadowedDirectionalLights[ShadowedDirectionalLightCount++] =
                 new ShadowedDirectionalLight { visibleLightIndex = visibleLightIndex };
@@ -71,6 +72,7 @@ public class Shadows
             buffer.GetTemporaryRT(dirShadowAtlasId, 1, 1,
             32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         }
+        
     }
 
     void RenderDirectionalShadows()
@@ -79,6 +81,43 @@ public class Shadows
         //create temp rendertex to save shadow depth tex
         buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize,
             32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        //order GPU to render on this RT, Load.dontcare since we goingto write on it, We need oit to store
+        buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+        //clear the buffer for rendering
+        buffer.ClearRenderTarget(true, false, Color.clear);
+        //begin profile
+        buffer.BeginSample(buffername);
+        ExecuteBuffer();
+
+        for (int i = 0; i < ShadowedDirectionalLightCount; i++)
+        {
+            RenderDirectionalShadows(i, atlasSize);//currently only one light
+        }
+
+        //end profile
+        buffer.EndSample(buffername);
+        ExecuteBuffer();
+    }
+
+    void RenderDirectionalShadows(int index, int tileSize)
+    {
+        ShadowedDirectionalLight light = ShadowedDirectionalLights[index];
+        //create a shadowdrawsetting based on the light index
+        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex);
+        //get the lightviewMatrix, lightprojectionMatrix, clip space box for the dirctional lights
+        cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
+            light.visibleLightIndex, 0, 1, Vector3.zero, tileSize, 0f,
+            out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
+            out ShadowSplitData splitData
+            );
+
+        shadowDSettings.splitData = splitData;
+        //set the ViewProjectionMatrices for the buffer
+        buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+        ExecuteBuffer();
+        //draw shadow caster on the buffer
+        context.DrawShadows(ref shadowDSettings);
+        //Debug.Log(shadowDSettings);
     }
 
     public void CleanUp()

@@ -27,9 +27,13 @@ public class Lighting
     {
         this.cullingResults = cullingResults;
         buffer.BeginSample(buffername);
+        //Setup shadows before setup lights
         shadows.Setup(context, cullingResults, shadowSettings);
+        //get all the Lightsinfo and sent to GPU
         SetupLights();
+        //render shadow
         shadows.Render();
+
         buffer.EndSample(buffername);
         context.ExecuteCommandBuffer(buffer);
         buffer.Clear();
