@@ -3,9 +3,9 @@
 
 #include "../ShaderLib/Common.hlsl"
 #include "../ShaderLib/Surface.hlsl"
+#include "../ShaderLib/Shadows.hlsl"
 #include "../ShaderLib/Light.hlsl"
 #include "../ShaderLib/BRDF.hlsl"
-#include "../ShaderLib/Shadows.hlsl"
 #include "../ShaderLib/Lighting.hlsl"
 
 TEXTURE2D(_BaseMap);
@@ -72,6 +72,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 #endif
 
 	Surface surface;
+	surface.position = input.positionWS;
 	surface.normal = normalize(input.normalWS.xyz);
 	surface.color = base.rgb;
 	surface.alpha = base.a;
