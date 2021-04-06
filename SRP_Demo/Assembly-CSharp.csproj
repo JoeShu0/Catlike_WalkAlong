@@ -81,6 +81,7 @@
     <None Include="Assets\CustomRP\Shader\Unlit.shader" />
     <None Include="Assets\CustomRP\ShaderLib\Lighting.hlsl" />
     <None Include="Assets\CustomRP\Shader\Lit.shader" />
+    <None Include="Assets\CustomRP\ShaderLib\Shadows.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Light.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\UnityInput.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\BRDF.hlsl" />

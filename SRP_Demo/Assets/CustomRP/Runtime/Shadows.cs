@@ -13,10 +13,15 @@ public class Shadows
     CullingResults cullingResults;
     ShadowSettings shadowSettings;
 
-    const int maxShadoweDirectionalLightCount = 1;
+    const int maxShadoweDirectionalLightCount = 4;
     int ShadowedDirectionalLightCount;
 
-    static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+    static int
+        dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
+        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+
+    static Matrix4x4[]
+        dirShadowMatrices = new Matrix4x4[maxShadoweDirectionalLightCount];
 
     struct ShadowedDirectionalLight
     {
@@ -48,15 +53,20 @@ public class Shadows
         buffer.Clear();
     }
 
-    public void ReserveDirectioanlShadows(Light light, int visibleLightIndex)
+    public Vector2 ReserveDirectioanlShadows(Light light, int visibleLightIndex)
     {
-        if (ShadowedDirectionalLightCount < maxShadoweDirectionalLightCount && 
+        if (ShadowedDirectionalLightCount < maxShadoweDirectionalLightCount &&
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
-            cullingResults.GetShadowCasterBounds(visibleLightIndex,out Bounds b)) 
-            //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
+            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
+        //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
         {
-            ShadowedDirectionalLights[ShadowedDirectionalLightCount++] =
+            ShadowedDirectionalLights[ShadowedDirectionalLightCount] =
                 new ShadowedDirectionalLight { visibleLightIndex = visibleLightIndex };
+            return new Vector2(light.shadowStrength, ShadowedDirectionalLightCount++);
+        }
+        else
+        {
+            return Vector2.zero;
         }
     }
 
@@ -89,17 +99,24 @@ public class Shadows
         buffer.BeginSample(buffername);
         ExecuteBuffer();
 
+        //if more than 1 dir light(MAX 4), the split should be 2(sqrt2)
+        int split = ShadowedDirectionalLightCount <= 1 ? 1 : 2;
+        int tileSize = atlasSize / split;
+
         for (int i = 0; i < ShadowedDirectionalLightCount; i++)
         {
-            RenderDirectionalShadows(i, atlasSize);//currently only one light
+            //call Render DirShadows with spilt and tilesize
+            RenderDirectionalShadows(i, split, tileSize);
         }
 
+        //set the dir shadow light world to atlas Matrix in global
+        buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
         //end profile
         buffer.EndSample(buffername);
         ExecuteBuffer();
     }
 
-    void RenderDirectionalShadows(int index, int tileSize)
+    void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = ShadowedDirectionalLights[index];
         //create a shadowdrawsetting based on the light index
@@ -108,16 +125,58 @@ public class Shadows
         cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
             light.visibleLightIndex, 0, 1, Vector3.zero, tileSize, 0f,
             out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
-            out ShadowSplitData splitData
-            );
+            out ShadowSplitData splitData);
 
         shadowDSettings.splitData = splitData;
+        //set the render view port and get the offset for modify the dir shadow matrix
+        //set the matrix from wolrd space to shadow Atlas space
+        dirShadowMatrices[index] = ConvertToAtlasMatrix(
+            projectionMatrix * viewMatrix,
+            SetTileViewport(index, split, tileSize),
+            split
+            );
+
         //set the ViewProjectionMatrices for the buffer
         buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
         ExecuteBuffer();
         //draw shadow caster on the buffer
         context.DrawShadows(ref shadowDSettings);
         //Debug.Log(shadowDSettings);
+    }
+
+    Vector2 SetTileViewport(int index, int split, float tileSize)
+    {
+        
+        Vector2 offset = new Vector2(index % split, index / split);
+        buffer.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize, tileSize, tileSize));
+        return offset;
+    }
+
+    Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, int split)
+    {
+        //check if we are using a reversed Z buffer, if so negete
+        if (SystemInfo.usesReversedZBuffer)
+        {
+            m.m20 = -m.m20;
+            m.m21 = -m.m21;
+            m.m22 = -m.m22;
+            m.m23 = -m.m23;
+        }
+        
+        //CliP space is -1~0~1 but texture depth is 0~1
+        //need to bake the scale and offset into the matrix
+        //matrix [Scale] * [offset.x,offset.y,0] * [scale0.5, offset0.5] * [m]
+        float scale = 1f/ split;
+        m.m00 = (0.5f * (m.m00 + m.m30) + offset.x * m.m30) * scale;
+        m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
+        m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;
+        m.m03 = (0.5f * (m.m03 + m.m33) + offset.x * m.m33) * scale;
+        m.m10 = (0.5f * (m.m10 + m.m30) + offset.x * m.m30) * scale;
+        m.m11 = (0.5f * (m.m11 + m.m31) + offset.x * m.m31) * scale;
+        m.m12 = (0.5f * (m.m12 + m.m32) + offset.x * m.m32) * scale;
+        m.m13 = (0.5f * (m.m13 + m.m33) + offset.x * m.m33) * scale;
+
+        return m;
     }
 
     public void CleanUp()

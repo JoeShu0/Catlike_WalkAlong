@@ -5,13 +5,9 @@
 #include "../ShaderLib/Surface.hlsl"
 #include "../ShaderLib/Light.hlsl"
 #include "../ShaderLib/BRDF.hlsl"
+#include "../ShaderLib/Shadows.hlsl"
 #include "../ShaderLib/Lighting.hlsl"
-/*
-//Enable unity SRP Batcher forbuffer per material
-CBUFFER_START(UnityPerMaterial)
-float4 _BaseColor;
-CBUFFER_END
-*/
+
 TEXTURE2D(_BaseMap);
 SAMPLER(sampler_BaseMap);
 

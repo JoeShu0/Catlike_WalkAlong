@@ -19,7 +19,7 @@
         {
             Tags
             {
-                "LightingMode" = "CustomLit"//indicate we are using custom lighting model
+                "LightMode" = "CustomLit"//indicate we are using custom lighting model
             }
             
             Blend [_SrcBlend] [_DstBlend]
@@ -39,7 +39,7 @@
         {
             Tags
             {
-                 "LightingMode" = "ShadowCaster"//add a pass, only shader with this pass is drawn in shadow buffer
+                 "LightMode" = "ShadowCaster"//add a pass, only shader with this pass is drawn in shadow buffer
             }
 
             ColorMask 0
