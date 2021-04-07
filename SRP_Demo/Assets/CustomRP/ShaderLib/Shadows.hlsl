@@ -12,7 +12,7 @@ struct DirectionalShadowData
 //Special texture declare for shadow map
 TEXTURE2D_SHADOW(_DirectionalShadowAtlas);
 #define SHADOW_SAMPLER sampler_linear_clamp_compare
-SAMPLER_CMP(sampler_DirectionalShadowAtlas);
+SAMPLER_CMP(SHADOW_SAMPLER);
 
 CBUFFER_START(_CustomShadows)
 	float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT];
@@ -30,10 +30,13 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData data, Surface surfac
 		return 1.0;
 	}
 
-	float3 postionSTS = mul(_DirectionalShadowMatrices[data.tileIndex], float4(surfaceWS.position, 1.0f)).xyz;
+	float3 positionSTS = mul(_DirectionalShadowMatrices[data.tileIndex], float4(surfaceWS.position, 1.0f)).xyz;
+
 
 	float shadow = SampleDirectionalShadowAtlas(positionSTS);
 
+	
+	//return shadow;
 	return lerp(1.0, shadow, data.strength);
 }
 
