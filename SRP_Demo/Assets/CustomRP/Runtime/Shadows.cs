@@ -13,7 +13,7 @@ public class Shadows
     CullingResults cullingResults;
     ShadowSettings shadowSettings;
 
-    const int maxShadoweDirectionalLightCount = 4;
+    const int maxShadowedDirectionalLightCount = 4;
     int ShadowedDirectionalLightCount;
 
     static int
@@ -21,7 +21,7 @@ public class Shadows
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
 
     static Matrix4x4[]
-        dirShadowMatrices = new Matrix4x4[maxShadoweDirectionalLightCount];
+        dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount];
 
     struct ShadowedDirectionalLight
     {
@@ -29,7 +29,7 @@ public class Shadows
     }
 
     ShadowedDirectionalLight[] ShadowedDirectionalLights =
-        new ShadowedDirectionalLight[maxShadoweDirectionalLightCount];
+        new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
 
     public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
     {
@@ -55,7 +55,7 @@ public class Shadows
 
     public Vector2 ReserveDirectioanlShadows(Light light, int visibleLightIndex)
     {
-        if (ShadowedDirectionalLightCount < maxShadoweDirectionalLightCount &&
+        if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
             cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
         //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
@@ -171,10 +171,15 @@ public class Shadows
         m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
         m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;
         m.m03 = (0.5f * (m.m03 + m.m33) + offset.x * m.m33) * scale;
+        m.m20 = 0.5f * (m.m20 + m.m30);
+        m.m21 = 0.5f * (m.m21 + m.m31);
+        m.m22 = 0.5f * (m.m22 + m.m32);
+        m.m23 = 0.5f * (m.m23 + m.m33);
         m.m10 = (0.5f * (m.m10 + m.m30) + offset.y * m.m30) * scale;
         m.m11 = (0.5f * (m.m11 + m.m31) + offset.y * m.m31) * scale;
         m.m12 = (0.5f * (m.m12 + m.m32) + offset.y * m.m32) * scale;
         m.m13 = (0.5f * (m.m13 + m.m33) + offset.y * m.m33) * scale;
+        
 
         return m;
     }
