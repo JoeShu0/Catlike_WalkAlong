@@ -2,12 +2,7 @@
 #define CUSTOM_SHADOWS_INCLUDED
 
 #define MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT 4
-
-struct DirectionalShadowData
-{
-	float strength;
-	int tileIndex;
-};
+#define MAX_CASCADE_COUNT 4
 
 //Special texture declare for shadow map
 TEXTURE2D_SHADOW(_DirectionalShadowAtlas);
@@ -15,8 +10,51 @@ TEXTURE2D_SHADOW(_DirectionalShadowAtlas);
 SAMPLER_CMP(SHADOW_SAMPLER);
 
 CBUFFER_START(_CustomShadows)
-	float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT];
+	int _CascadeCount;
+	float _ShadowDistance;
+	float4 _CascadeCullingSpheres[MAX_CASCADE_COUNT];
+	float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT];
 CBUFFER_END
+
+struct DirectionalShadowData
+{
+	float strength;
+	int tileIndex;
+};
+
+struct ShadowData//per fragment data
+{
+	int cascadeIndex;
+	float strength;
+};
+
+ShadowData GetShadowData(Surface surfaceWS)
+{
+	ShadowData data;
+	//refuce shadow strength to 0 outside the shadoedistance
+	data.strength = surfaceWS.depth < _ShadowDistance ? 1 : 0;
+	int i;
+	for (i = 0; i < _CascadeCount; i++)
+	{
+		float4 sphere = _CascadeCullingSpheres[i];
+		float distanceSqr = DistanceSquared(surfaceWS.position, sphere.xyz);
+		if (distanceSqr < sphere.w)
+		{
+			break;
+		}
+	}
+	if (i == _CascadeCount)
+	{
+		//this makes sure when frag goes outside the shadow distance, strength will be o
+		data.strength = 0.0;
+	}
+	data.cascadeIndex = i;
+	//float distanceSqr = DistanceSquared(surfaceWS.position, float3(0.0,0.0,0.0));
+	//float4 sphere = _CascadeCullingSpheres[0];
+	//data.cascadeIndex = sphere.w >0 ? 0 : 3;
+	//data.cascadeIndex = 0;
+	return data;
+}
 
 float SampleDirectionalShadowAtlas(float3 positionSTS)
 {
