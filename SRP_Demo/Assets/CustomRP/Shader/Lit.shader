@@ -28,6 +28,10 @@
             #pragma target 3.5
             #pragma shader_feature _CLIPPING//make unity complie 2 shader with and without _CLIPPING define
             #pragma shader_feature _PREMULTIPLY_ALPHA
+            //multicompile for shadow sample "_ " means use PCF2x2 when no keywords
+            #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7 
+            //multicompile for shadow cascade blending
+            #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile_instancing//make unity complie 2 shader with and without GPU instancing
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment

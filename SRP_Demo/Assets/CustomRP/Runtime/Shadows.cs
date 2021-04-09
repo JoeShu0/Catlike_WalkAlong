@@ -5,6 +5,17 @@ public class Shadows
 {
     const string buffername = "Shadows";
 
+    static string[] directionalFilterKeywords = {
+        "_DIRECTIONAL_PCF3",
+        "_DIRECTIONAL_PCF5",
+        "_DIRECTIONAL_PCF7",
+    };
+
+    static string[] cascadeBlendKeywords = {
+        "_CASCADE_BLEND_SOFT",
+        "_CASCADE_BLEND_DITHER",
+    };
+
     CommandBuffer buffer = new CommandBuffer {
         name = buffername
     };
@@ -24,6 +35,7 @@ public class Shadows
         cascadeCountId = Shader.PropertyToID("_CascadeCount"),
         cascadeCullingSphereId = Shader.PropertyToID("_CascadeCullingSpheres"),
         cascadeDataId = Shader.PropertyToID("_CascadeData"),
+        shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
         shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
     static Vector4[] 
@@ -36,6 +48,8 @@ public class Shadows
     struct ShadowedDirectionalLight
     {
         public int visibleLightIndex;
+        public float slopScaleBias;//this will control the depth bias slop value for tweaking per light
+        public float nearPlaneOffset;// this will pull the near plane(of light) back a bit, helps reduce long obj shadow deforming    
     }
 
     ShadowedDirectionalLight[] ShadowedDirectionalLights =
@@ -63,7 +77,7 @@ public class Shadows
         buffer.Clear();
     }
 
-    public Vector2 ReserveDirectioanlShadows(Light light, int visibleLightIndex)
+    public Vector3 ReserveDirectioanlShadows(Light light, int visibleLightIndex)
     {
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
@@ -71,12 +85,18 @@ public class Shadows
         //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
         {
             ShadowedDirectionalLights[ShadowedDirectionalLightCount] =
-                new ShadowedDirectionalLight { visibleLightIndex = visibleLightIndex };
-            return new Vector2(light.shadowStrength, shadowSettings.directional.cascadeCount * ShadowedDirectionalLightCount++);
+                new ShadowedDirectionalLight {
+                    visibleLightIndex = visibleLightIndex,
+                    slopScaleBias = light.shadowBias,
+                    nearPlaneOffset = light.shadowNearPlane
+                };
+            return new Vector3(light.shadowStrength,
+                shadowSettings.directional.cascadeCount * ShadowedDirectionalLightCount++, 
+                light.shadowNormalBias);
         }
         else
         {
-            return Vector2.zero;
+            return Vector3.zero;
         }
     }
 
@@ -135,11 +155,30 @@ public class Shadows
             );
         //set the dir shadow light world to atlas Matrix in global
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+        //set the shader keywords
+        SetKeywords(directionalFilterKeywords, (int)shadowSettings.directional.filter - 1);
+        SetKeywords(cascadeBlendKeywords, (int)shadowSettings.directional.cascadeBlendM - 1);
+
+        buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
         //end profile
         buffer.EndSample(buffername);
         ExecuteBuffer();
     }
 
+    void SetKeywords(string[] keywords, int enabledIndex)
+    {
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            if (i == enabledIndex)
+            {
+                buffer.EnableShaderKeyword(keywords[i]);
+            }
+            else 
+            {
+                buffer.DisableShaderKeyword(keywords[i]);
+            }
+        }
+    }
     void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = ShadowedDirectionalLights[index];
@@ -149,13 +188,17 @@ public class Shadows
         int cascadeCount = shadowSettings.directional.cascadeCount;
         int tileOffset = index * cascadeCount;
         Vector3 ratios = shadowSettings.directional.CascadeRatios;
+        //cal the cascade culling factor
+        float cullingfactor = Mathf.Max(0f, 0.8f - shadowSettings.directional.cascadeFade);
         //get the lightviewMatrix, lightprojectionMatrix, clip space box for the dirctional lights
         for (int i = 0; i < cascadeCount; i++)
         {
             cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
-                light.visibleLightIndex, i, cascadeCount, ratios, tileSize, 0f,
+                light.visibleLightIndex, i, cascadeCount, ratios, tileSize, light.nearPlaneOffset,
                 out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                 out ShadowSplitData splitData);
+            //make UNITY to cull some shadow caster in large cascade if the smaller cascade is enough
+            splitData.shadowCascadeBlendCullingFactor = cullingfactor;
             shadowDSettings.splitData = splitData;
             //assign the cascade culling sphere, all lights uses the same culling spheres and same cascade datas
             if (index == 0)
@@ -176,13 +219,13 @@ public class Shadows
             //experimental depth bias
             //buffer.SetGlobalDepthBias(50000f, 0f);
             //using slop bias
-            //buffer.SetGlobalDepthBias(0f, 3f);
+            buffer.SetGlobalDepthBias(0f, light.slopScaleBias);
             ExecuteBuffer();
             
             //draw shadow caster on the buffer
             context.DrawShadows(ref shadowDSettings);
             //Debug.Log(shadowDSettings
-            //buffer.SetGlobalDepthBias(0f, 0f);
+            buffer.SetGlobalDepthBias(0f, 0f);
         }
 
     }
@@ -191,13 +234,17 @@ public class Shadows
     {
         //Debug.Log(cullingSphere);
         float texelSize = 2f * cullingSphere.w / tileSize;
-        
+        //bigger the filter, larger the normal bias
+        float filterSize = texelSize * ((float)shadowSettings.directional.filter + 1f);
+
         //cascadeData[index].x = 1f / cullingSphere.w;//preinverted R for GPU
+        //reduce the spere radius by the filtersize to avoid sample outside the radius
+        cullingSphere.w -= filterSize;
         //to reduce the calculation in gpu(square distance), we send in the sphere with radius = R * R
         cullingSphere.w *= cullingSphere.w;
         cascadeCullingSpheres[index] = cullingSphere;
         //setting the cascade data x is square invert R,y is the texsize * 1.414(square root of 2)
-        cascadeData[index] = new Vector4(1f / cullingSphere.w, texelSize * 1.414f);
+        cascadeData[index] = new Vector4(1f / cullingSphere.w, filterSize * 1.414f);
     }
 
     Vector2 SetTileViewport(int index, int split, float tileSize)
