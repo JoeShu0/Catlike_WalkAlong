@@ -23,9 +23,12 @@ public class Shadows
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
         cascadeCountId = Shader.PropertyToID("_CascadeCount"),
         cascadeCullingSphereId = Shader.PropertyToID("_CascadeCullingSpheres"),
-        shadowDistanceId = Shader.PropertyToID("_ShadowDistance");
+        cascadeDataId = Shader.PropertyToID("_CascadeData"),
+        shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
-    static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
+    static Vector4[] 
+        cascadeCullingSpheres = new Vector4[maxCascades],
+        cascadeData = new Vector4[maxCascades];
 
     static Matrix4x4[]
         dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
@@ -120,9 +123,16 @@ public class Shadows
         //set cascadecount and cascade culling sphere to GPU
         buffer.SetGlobalInt(cascadeCountId, shadowSettings.directional.cascadeCount);
         buffer.SetGlobalVectorArray(cascadeCullingSphereId, cascadeCullingSpheres);
+        buffer.SetGlobalVectorArray(cascadeDataId, cascadeData);
         //set the shadowdistance to GPU to help reduce shadow strength to 0 outside the distance
         //otherwise the sample is cut based on culling sphere,which is extend beyond the distance
-        buffer.SetGlobalFloat(shadowDistanceId, shadowSettings.maxDistance);
+        //also add distance fade and cascade sphere fade, both using (1-d/max)/f, pass the max and f inverted
+        float f = 1f - shadowSettings.directional.cascadeFade;
+        buffer.SetGlobalVector(shadowDistanceFadeId,
+            new Vector4(1 / shadowSettings.maxDistance,
+            1 / shadowSettings.distanceFade,
+            1f / (1f - f * f))
+            );
         //set the dir shadow light world to atlas Matrix in global
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
         //end profile
@@ -147,13 +157,10 @@ public class Shadows
                 out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
                 out ShadowSplitData splitData);
             shadowDSettings.splitData = splitData;
-            //assign the cascade culling sphere, all lights uses the same culling spheres
+            //assign the cascade culling sphere, all lights uses the same culling spheres and same cascade datas
             if (index == 0)
             {
-                //to reduce the calculation in gpu(square distance), we send in the sphere with radius = R * R
-                Vector4 cullingSphere = splitData.cullingSphere;
-                cullingSphere.w *= cullingSphere.w;
-                cascadeCullingSpheres[i] = cullingSphere;
+                SetCascadeData(i, splitData.cullingSphere, tileSize);
             }
             int tileIdex = tileOffset + i;
             //set the render view port and get the offset for modify the dir shadow matrix
@@ -165,12 +172,32 @@ public class Shadows
                 );
             //set the ViewProjectionMatrices for the buffer
             buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+
+            //experimental depth bias
+            //buffer.SetGlobalDepthBias(50000f, 0f);
+            //using slop bias
+            //buffer.SetGlobalDepthBias(0f, 3f);
             ExecuteBuffer();
+            
             //draw shadow caster on the buffer
             context.DrawShadows(ref shadowDSettings);
-            //Debug.Log(shadowDSettings);
+            //Debug.Log(shadowDSettings
+            //buffer.SetGlobalDepthBias(0f, 0f);
         }
 
+    }
+
+    void SetCascadeData(int index, Vector4 cullingSphere, float tileSize)
+    {
+        //Debug.Log(cullingSphere);
+        float texelSize = 2f * cullingSphere.w / tileSize;
+        
+        //cascadeData[index].x = 1f / cullingSphere.w;//preinverted R for GPU
+        //to reduce the calculation in gpu(square distance), we send in the sphere with radius = R * R
+        cullingSphere.w *= cullingSphere.w;
+        cascadeCullingSpheres[index] = cullingSphere;
+        //setting the cascade data x is square invert R,y is the texsize * 1.414(square root of 2)
+        cascadeData[index] = new Vector4(1f / cullingSphere.w, texelSize * 1.414f);
     }
 
     Vector2 SetTileViewport(int index, int split, float tileSize)
