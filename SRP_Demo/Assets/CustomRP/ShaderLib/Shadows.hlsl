@@ -130,6 +130,11 @@ float FilterDirectionalShadow(float3 positionSTS)
 
 float GetDirectionalShadowAttenuation(DirectionalShadowData directionalSD, ShadowData globalSD, Surface surfaceWS)
 {
+	//make the light strength attenuation with shadow as 1.0, 
+	//when the light have 0 shadow strength or the surface is mark to not receive shadows
+	#if !defined(_RECEIVE_SHADOWS)
+	return 1.0;
+	#endif
 	if (directionalSD.strength <= 0.0)
 	{
 		return 1.0;

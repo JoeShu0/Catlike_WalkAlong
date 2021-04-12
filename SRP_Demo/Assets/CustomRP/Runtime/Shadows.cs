@@ -188,7 +188,7 @@ public class Shadows
         int cascadeCount = shadowSettings.directional.cascadeCount;
         int tileOffset = index * cascadeCount;
         Vector3 ratios = shadowSettings.directional.CascadeRatios;
-        //cal the cascade culling factor
+        //cal the cascade culling factor, make it 0.8-fade to make sure casters in transition not being culled
         float cullingfactor = Mathf.Max(0f, 0.8f - shadowSettings.directional.cascadeFade);
         //get the lightviewMatrix, lightprojectionMatrix, clip space box for the dirctional lights
         for (int i = 0; i < cascadeCount; i++)
