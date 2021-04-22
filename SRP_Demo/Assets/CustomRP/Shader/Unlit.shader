@@ -13,6 +13,13 @@
     }
     SubShader
     {
+        //since some pass uses same functions and input declares, 
+        //We pack then into one Litinput.hlsl
+        HLSLINCLUDE
+        #include "../ShaderLib/Common.hlsl"
+        #include "UnlitInput.hlsl"
+        ENDHLSL
+            
         Pass
         {
             Blend [_SrcBlend] [_DstBlend]

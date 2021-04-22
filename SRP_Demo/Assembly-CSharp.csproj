@@ -79,11 +79,15 @@
     <None Include="Assets\CustomRP\Shader\ShadowCasterPass.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Surface.hlsl" />
     <None Include="Assets\CustomRP\Shader\Unlit.shader" />
+    <None Include="Assets\CustomRP\Shader\MetaPass.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Lighting.hlsl" />
     <None Include="Assets\CustomRP\Shader\Lit.shader" />
     <None Include="Assets\CustomRP\ShaderLib\Shadows.hlsl" />
+    <None Include="Assets\CustomRP\Shader\LitInput.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Light.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\UnityInput.hlsl" />
+    <None Include="Assets\CustomRP\ShaderLib\GI.hlsl" />
+    <None Include="Assets\CustomRP\Shader\UnlitInput.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\BRDF.hlsl" />
     <Reference Include="UnityEngine">
       <HintPath>D:/Unity_Editor/2019.4.7f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

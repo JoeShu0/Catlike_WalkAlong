@@ -1,23 +1,6 @@
 ﻿#ifndef CUSTOM_UNLIT_PASS_INCLUDED
 #define CUSTOM_UNLIT_PASS_INCLUDED
 
-#include "../ShaderLib/Common.hlsl"
-/*
-//Enable unity SRP Batcher forbuffer per material
-CBUFFER_START(UnityPerMaterial)
-float4 _BaseColor;
-CBUFFER_END
-*/
-TEXTURE2D(_BaseMap);
-SAMPLER(sampler_BaseMap);
-
-UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
-	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
-	UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
-UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-// the error assert 0==m_CurrentBuildInBindMask may cased by the GPU instance option os not on in the material
-
 
 struct Attributes
 {
@@ -44,8 +27,7 @@ Varyings UnlitPassVertex(Attributes input)
 	UNITY_TRANSFER_INSTANCE_ID(input, output);
 
 	//transform UV based on permaterial ST
-	float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-	output.baseUV = input.baseUV * baseST.xy + baseST.zw;
+	output.baseUV = TransformBaseUV(input.baseUV);
 
 	float3 positionWS = TransformObjectToWorld(input.positionOS);
 	output.positionCS = TransformWorldToHClip(positionWS);
@@ -59,11 +41,11 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 	//Setup the instance ID for Input
 	UNITY_SETUP_INSTANCE_ID(input);
 
-	float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
-	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
-	float4 Color = baseColor * baseMap;
+	//get the basemap * basecolor
+	float4 Color = GetBase(input.baseUV);
+
 #if defined(_CLIPPING)
-	clip(Color.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
+	clip(Color.a - GetCutoff(input.baseUV));
 #endif
 	return Color;
 }

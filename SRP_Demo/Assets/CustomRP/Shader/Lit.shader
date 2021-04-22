@@ -17,8 +17,17 @@
     }
     SubShader
     {
+        //since some pass uses same functions and input declares, 
+        //We pack then into one Litinput.hlsl
+        HLSLINCLUDE
+        #include "../ShaderLib/Common.hlsl"
+        #include "LitInput.hlsl"
+        ENDHLSL
+            
         Pass
         {
+            
+            
             Tags
             {
                 "LightMode" = "CustomLit"//indicate we are using custom lighting model
@@ -36,7 +45,10 @@
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             //receive shadows or not
             #pragma shader_feature _RECEIVE_SHADOWS
-            #pragma multi_compile_instancing//make unity complie 2 shader with and without GPU instancing
+            //Add multi compile for using lightMap
+            #pragma multi_compile _ LIGHTMAP_ON
+            //make unity complie 2 shader with and without GPU instancing
+            #pragma multi_compile_instancing
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #include "LitPass.hlsl"
@@ -62,6 +74,24 @@
             #include "ShadowCasterPass.hlsl"
             ENDHLSL
         }
+           
+        Pass
+        {
+            Tags
+            {
+                "LightMode" = "Meta"//this pass is used for GI caculation
+            }
+
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex MetaPassVertex
+            #pragma fragment MetaPassFragment
+            #include "MetaPass.hlsl"
+            ENDHLSL
+        }
+        
     }
     CustomEditor "CustomShaderGUI"
 }

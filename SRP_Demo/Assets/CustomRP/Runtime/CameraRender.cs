@@ -85,7 +85,12 @@ public partial class CameraRender
             criteria = SortingCriteria.CommonOpaque};
         //drawing setting what kind of shader should be draw
         var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings) {
-            enableDynamicBatching = useDynameicBatching, enableInstancing = useGPUInstancing};
+            enableDynamicBatching = useDynameicBatching, 
+            enableInstancing = useGPUInstancing,
+            perObjectData = PerObjectData.Lightmaps |//lightmap UV
+                PerObjectData.LightProbe |//lighting Probe coefficient
+                PerObjectData.LightProbeProxyVolume// LPPV data
+        };
         drawingSettings.SetShaderPassName(1, LitShaderTadId);
 
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);

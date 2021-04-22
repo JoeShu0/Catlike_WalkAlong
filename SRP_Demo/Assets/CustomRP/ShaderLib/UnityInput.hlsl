@@ -3,11 +3,29 @@
 
 //Enable unity SRP Batcher forbuffer per Drawcall
 CBUFFER_START(UnityPerDraw)
-//these values will be set by unity once per draw call
-float4x4 unity_ObjectToWorld;
-float4x4 unity_WorldToObject;
-float4 unity_LODFade;
-real4 unity_WorldTransformParams;
+	//these values will be set by unity once per draw call
+	float4x4 unity_ObjectToWorld;
+	float4x4 unity_WorldToObject;
+	float4 unity_LODFade;
+	real4 unity_WorldTransformParams;
+
+	float4 unity_LightmapST;//light map UV offset
+	float4 unity_DynamicLightmapST;//for SRP batcher
+
+	//lighting probe coefficient
+	float4 unity_SHAr;
+	float4 unity_SHAg;
+	float4 unity_SHAb;
+	float4 unity_SHBr;
+	float4 unity_SHBg;
+	float4 unity_SHBb;
+	float4 unity_SHC;
+
+	//LightProbeProxyVolume
+	float4 unity_ProbeVolumeParams;
+	float4x4 unity_ProbeVolumeWorldToObject;
+	float4 unity_ProbeVolumeSizeInv;
+	float4 unity_ProbeVolumeMin;
 CBUFFER_END
 
 float3 _WorldSpaceCameraPos;
