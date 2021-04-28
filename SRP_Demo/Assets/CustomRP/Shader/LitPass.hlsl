@@ -82,6 +82,9 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 
 	float3 color = GetLighting(surface, brdf, gi);
 
+	//emission
+	color += GetEmission(input.baseUV);
+
 	return float4(color, surface.alpha);
 }
 

@@ -14,6 +14,12 @@
         [Enum(Off, 0, On, 1)] _ZWrite("Z Write", Float) = 1
         [KeywordEnum(On, Clip, Dither, Off)] _Shadows("Shadows", Float) = 0
         [Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows("ReceiveShadows", Float) = 1
+
+        [NoScaleOffset] _EmissionMap("Emission", 2D) = "white"{}
+        [HDR] _EmissionColor("Emission",Color) = (0.0,0.0,0.0,0.0)
+        //add the tex and color needed for tranparent object lightmap baking 
+        [HideInInspector] _MainTex("Texture for Lightmap", 2D) = "white" {}
+        [HideInInspector] _Color("Color for Lightmap", Color) = (0.5,0.5,0.5,1.0)
     }
     SubShader
     {

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 public class MeshBall : MonoBehaviour
 {
@@ -39,7 +40,19 @@ public class MeshBall : MonoBehaviour
             block.SetVectorArray(baseColorId, baseColors);
             block.SetFloatArray(metallicId, metallics);
             block.SetFloatArray(smoothnessId, smoothnesses);
+
+            var positions = new Vector3[1023];
+            for (int i = 0; i < matrices.Length; i++)
+            {
+                positions[i] = matrices[i].GetColumn(3);//get the position from matrix
+            }
+
+            var lightProbes = new SphericalHarmonicsL2[1023];
+            LightProbes.CalculateInterpolatedLightAndOcclusionProbes(positions, lightProbes, null);
+            block.CopySHCoefficientArraysFrom(lightProbes);
         }
-        Graphics.DrawMeshInstanced(mesh, 0, material, matrices, 1023, block);
+        Graphics.DrawMeshInstanced(mesh, 0, material, matrices, 1023, block, 
+            UnityEngine.Rendering.ShadowCastingMode.On, true, 0, null, UnityEngine.Rendering.LightProbeUsage.CustomProvided
+            );
     }
 }

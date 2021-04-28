@@ -45,6 +45,8 @@ public class CustomShaderGUI : ShaderGUI
         materials = materialEditor.targets;
         this.properties = properties;
 
+        BakeEmission();//enable bake emission for material
+
         EditorGUILayout.Space();
         showPresets = EditorGUILayout.Foldout(showPresets, "Presets", true);
         if (showPresets)
@@ -58,6 +60,47 @@ public class CustomShaderGUI : ShaderGUI
         if (EditorGUI.EndChangeCheck())
         {
             SetShadowCasterPass();
+            //copy map and color for transparent lightmap rendering
+            CopyLightMappingProperties();
+        }
+    }
+
+    void CopyLightMappingProperties()
+    {
+        MaterialProperty mainTex = FindProperty("_MainTex", properties, false);
+        MaterialProperty baseMap = FindProperty("_BaseMap", properties, false);
+        if (mainTex != null && baseMap != null)
+        {
+            mainTex.textureValue = baseMap.textureValue;
+            mainTex.textureScaleAndOffset = baseMap.textureScaleAndOffset;
+        }
+        MaterialProperty color = FindProperty("_Color", properties, false);
+        MaterialProperty baseColor = FindProperty("_BaseColor", properties, false);
+        if (color != null && baseColor != null)
+        {
+            color.colorValue = baseColor.colorValue;
+        }
+
+    }
+
+    void BakeEmission()
+    {
+        EditorGUI.BeginChangeCheck();
+        //this will show the configuration property for bake emission
+        // turn the property to baked for emissive material
+        editor.LightmapEmissionProperty();
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            // for each material have the emission tyoe changed
+            // disable the function of unity trying to skip all material with emission to black
+            foreach (Material m in editor.targets)
+            {
+                //m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
+                //Debug.Log("Bake emissive");
+                m.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+                
+            }
         }
     }
 

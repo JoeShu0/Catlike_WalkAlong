@@ -27,6 +27,11 @@ float4 GetBase(float2 baseUV)
 	return base;
 }
 
+float3 GetEmission(float2 baseUV)
+{
+	return GetBase(baseUV).rgb;
+}
+
 // below functions don't need UV, But for later use we do need it for texture sample
 float GetCutoff(float2 baseUV)
 {
