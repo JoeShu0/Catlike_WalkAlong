@@ -55,6 +55,8 @@
             #pragma multi_compile _ LIGHTMAP_ON
             //make unity complie 2 shader with and without GPU instancing
             #pragma multi_compile_instancing
+            //mul compile for using shadow mask
+            #pragma multi_compile _ _SHADOW_MASK_DISTANCE
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #include "LitPass.hlsl"

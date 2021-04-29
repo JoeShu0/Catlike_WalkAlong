@@ -24,7 +24,7 @@ public class Shadows
     CullingResults cullingResults;
     ShadowSettings shadowSettings;
 
-    const int 
+    const int
         maxShadowedDirectionalLightCount = 4,
         maxCascades = 4;
     int ShadowedDirectionalLightCount;
@@ -38,7 +38,7 @@ public class Shadows
         shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
         shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
-    static Vector4[] 
+    static Vector4[]
         cascadeCullingSpheres = new Vector4[maxCascades],
         cascadeData = new Vector4[maxCascades];
 
@@ -55,11 +55,21 @@ public class Shadows
     ShadowedDirectionalLight[] ShadowedDirectionalLights =
         new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
 
+    static string[] shadowMaskKeywords =
+        {
+        "_SHADOW_MASK_DISTANCE"
+    };
+
+    bool useShadowMask;
+
     public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
     {
         this.cullingResults = cullingResults;
         this.context = context;
         this.shadowSettings = shadowSettings;
+
+        //init ans not use shadowmask
+        useShadowMask = false;
 
         ShadowedDirectionalLightCount = 0;
         /*
@@ -84,6 +94,14 @@ public class Shadows
             cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
         //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
         {
+            //we will decide wether to use the shadow mask depend on if the lights are using thi shadow mask
+            LightBakingOutput lightBaking = light.bakingOutput;
+            if (lightBaking.lightmapBakeType == LightmapBakeType.Mixed &&
+               lightBaking.mixedLightingMode == MixedLightingMode.Shadowmask)
+            {
+                useShadowMask = true;
+            }
+            
             ShadowedDirectionalLights[ShadowedDirectionalLightCount] =
                 new ShadowedDirectionalLight {
                     visibleLightIndex = visibleLightIndex,
@@ -112,6 +130,12 @@ public class Shadows
             buffer.GetTemporaryRT(dirShadowAtlasId, 1, 1,
             32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         }
+
+        //refresh the shandowmask keyword every frame
+        buffer.BeginSample(buffername);
+        SetKeywords(shadowMaskKeywords, useShadowMask ? 0 : 1);
+        buffer.EndSample(buffername);
+        ExecuteBuffer();
         
     }
 

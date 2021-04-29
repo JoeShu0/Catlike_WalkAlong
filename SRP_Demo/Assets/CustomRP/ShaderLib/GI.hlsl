@@ -6,6 +6,9 @@
 //TEX and sampler for lightmap
 TEXTURE2D(unity_Lightmap);
 SAMPLER(samplerunity_Lightmap);
+//Tex for shadow mask
+TEXTURE2D(unity_ShadowMask);
+SAMPLER(samplerunity_ShadowMask);
 //TEX and SP for LPPV
 TEXTURE3D_FLOAT(unity_ProbeVolumeSH);
 SAMPLER(samplerunity_ProbeVolumeSH);
@@ -27,7 +30,21 @@ SAMPLER(samplerunity_ProbeVolumeSH);
 struct GI
 {
 	float3 diffuse;
+	ShadowMask shadowMask;
 };
+
+
+float4 SampleBakedShadows(float2 lightMapUV)
+{//Only lightmapped obj can have attenuation
+#if defined(LIGHTMAP_ON)
+	return SAMPLE_TEXTURE2D(
+		unity_ShadowMask,
+		samplerunity_ShadowMask,
+		lightMapUV);
+#else
+	return 1.0;
+#endif
+}
 
 float3 SampleLightMap(float2 lightMapUV)
 {
@@ -80,10 +97,15 @@ GI GetGI(float2 lightMapUV, Surface surfaceWS)
 {
 	GI gi;
 	gi.diffuse = SampleLightMap(lightMapUV) + SampleLightProbe(surfaceWS);
+	gi.shadowMask.distance = false;
+	gi.shadowMask.shadows = 1.0;
+
+#if defined(_SHADOW_MASK_DISTANCE)
+	gi.shadowMask.distance = true;
+	gi.shadowMask.shadows = SampleBakedShadows(lightMapUV);
+#endif
 	return gi;
 }
-
-
 
 
 #endif
