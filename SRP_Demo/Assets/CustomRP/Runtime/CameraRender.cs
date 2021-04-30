@@ -90,7 +90,9 @@ public partial class CameraRender
             perObjectData = PerObjectData.Lightmaps |//lightmap UV
                 PerObjectData.LightProbe |//lighting Probe coefficient
                 PerObjectData.LightProbeProxyVolume |// LPPV data
-                PerObjectData.ShadowMask//shadowmask texture
+                PerObjectData.ShadowMask |//shadowmask texture
+                PerObjectData.OcclusionProbe|//for using lightmap on dynamic assets
+                PerObjectData.OcclusionProbeProxyVolume//same above for LPPV
         };
         drawingSettings.SetShaderPassName(1, LitShaderTadId);
 

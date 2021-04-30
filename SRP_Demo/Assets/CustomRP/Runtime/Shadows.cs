@@ -90,8 +90,9 @@ public class Shadows
     public Vector3 ReserveDirectioanlShadows(Light light, int visibleLightIndex)
     {
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
-            light.shadows != LightShadows.None && light.shadowStrength > 0f &&
-            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
+            light.shadows != LightShadows.None && light.shadowStrength > 0f //&&
+            //cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)
+            )
         //the getshadowCasterBound will return false if the light does not effect any oject(can cast shadow) in shadow range
         {
             //we will decide wether to use the shadow mask depend on if the lights are using thi shadow mask
@@ -100,6 +101,11 @@ public class Shadows
                lightBaking.mixedLightingMode == MixedLightingMode.Shadowmask)
             {
                 useShadowMask = true;
+            }
+
+            if (!cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
+            {
+                return new Vector3(-light.shadowStrength, 0f, 0f);
             }
             
             ShadowedDirectionalLights[ShadowedDirectionalLightCount] =

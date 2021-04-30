@@ -52,8 +52,11 @@ public class MeshBall : MonoBehaviour
                     positions[i] = matrices[i].GetColumn(3);//get the position from matrix
                 }
                 var lightProbes = new SphericalHarmonicsL2[1023];
-                LightProbes.CalculateInterpolatedLightAndOcclusionProbes(positions, lightProbes, null);
+                //occlusion probe dara for mesh ball
+                var occlusionProbes = new Vector4[1023];
+                LightProbes.CalculateInterpolatedLightAndOcclusionProbes(positions, lightProbes, occlusionProbes);
                 block.CopySHCoefficientArraysFrom(lightProbes);
+                block.CopyProbeOcclusionArrayFrom(occlusionProbes);
             }  
         }
         Graphics.DrawMeshInstanced(mesh, 0, material, matrices, 1023, block, 

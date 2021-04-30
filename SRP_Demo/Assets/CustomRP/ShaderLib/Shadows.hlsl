@@ -138,21 +138,12 @@ float FilterDirectionalShadow(float3 positionSTS)
 #endif
 }
 
-float GetDirectionalShadowAttenuation(DirectionalShadowData directionalSD, ShadowData globalSD, Surface surfaceWS)
+float GetCascadeShadow(DirectionalShadowData directionalSD, ShadowData globalSD, Surface surfaceWS)
 {
-	//make the light strength attenuation with shadow as 1.0, 
-	//when the light have 0 shadow strength or the surface is mark to not receive shadows
-	#if !defined(_RECEIVE_SHADOWS)
-	return 1.0;
-	#endif
-	if (directionalSD.strength <= 0.0)
-	{
-		return 1.0;
-	}
 	//offset the surface by the width of a texel to avoid shadow acne
-	float3 normalBias = surfaceWS.normal *(directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex].y);
+	float3 normalBias = surfaceWS.normal * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex].y);
 	//float3 normalBias = 0;
-	float3 positionSTS = mul(_DirectionalShadowMatrices[directionalSD.tileIndex], float4(surfaceWS.position+ normalBias, 1.0f)).xyz;
+	float3 positionSTS = mul(_DirectionalShadowMatrices[directionalSD.tileIndex], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
 
 
 	//float shadow = SampleDirectionalShadowAtlas(positionSTS);
@@ -162,13 +153,67 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directionalSD, Shado
 	//check the blend value and if in blend zone, sample the next cascade
 	if (globalSD.cascadeBlend < 1.0)
 	{
-		normalBias = surfaceWS.normal * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex+1].y);
-		positionSTS = mul(_DirectionalShadowMatrices[directionalSD.tileIndex+1], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
+		normalBias = surfaceWS.normal * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex + 1].y);
+		positionSTS = mul(_DirectionalShadowMatrices[directionalSD.tileIndex + 1], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
 		shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, globalSD.cascadeBlend);
 	}
+
+	return shadow;
+}
+
+float GetBakedShadow(ShadowMask mask)
+{
+	float shadow = 1.0;
+	if (mask.distance)
+	{
+		shadow = mask.shadows.r;
+	}
+	return shadow;
+}
+
+float GetBakedShadow(ShadowMask mask, float strength)
+{
+	if (mask.distance)
+	{
+		return lerp(1.0, GetBakedShadow(mask), strength);
+	}
+	return 1.0;
+}
+
+float MixBakedAndRealtimeShadows(ShadowData globalSD, float shadow, float strength)
+{
+	float baked = GetBakedShadow(globalSD.shadowMask);
+	//lerp baked shadow and cascade shadow in depth
+	if (globalSD.shadowMask.distance)
+	{
+		shadow = lerp(baked, shadow, globalSD.strength);
+		//shadow = lerp(baked, shadow, 0.5f);
+		return lerp(1.0, shadow, strength);
+	}
+	return lerp(1.0, shadow, strength* globalSD.strength);
+}
+
+float GetDirectionalShadowAttenuation(DirectionalShadowData directionalSD, ShadowData globalSD, Surface surfaceWS)
+{
+	//make the light strength attenuation with shadow as 1.0, 
+	//when the light have 0 shadow strength or the surface is mark to not receive shadows
+	#if !defined(_RECEIVE_SHADOWS)
+	return 1.0;
+	#endif
 	
-	//return shadow;
-	return lerp(1.0, shadow, directionalSD.strength);
+	float shadow;
+	if (directionalSD.strength * globalSD.strength <= 0.0)
+	{
+		//use baked shadow when light Shadoe strength and perfragment shadow strength is less than 0(out of shadow distance)
+		shadow = GetBakedShadow(globalSD.shadowMask, abs(globalSD.strength));
+	}
+	else
+	{
+		shadow = GetCascadeShadow(directionalSD, globalSD, surfaceWS);
+		shadow = MixBakedAndRealtimeShadows(globalSD, shadow, directionalSD.strength);
+	}
+	
+	return shadow;
 }
 
 

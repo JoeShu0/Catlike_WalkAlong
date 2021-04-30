@@ -9,6 +9,9 @@ CBUFFER_START(UnityPerDraw)
 	float4 unity_LODFade;
 	real4 unity_WorldTransformParams;
 
+	//Unity probes occlusion data for dynamic assets
+	float4 unity_ProbesOcclusion;
+
 	float4 unity_LightmapST;//light map UV offset
 	float4 unity_DynamicLightmapST;//for SRP batcher
 
