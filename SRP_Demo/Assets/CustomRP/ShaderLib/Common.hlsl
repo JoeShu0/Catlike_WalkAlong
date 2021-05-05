@@ -13,7 +13,7 @@
 
 //If we are using shadow distance mode, 
 //we need define the shadowmask before input unityinstancing, otherwise the GPU Instancing will break
-#if defined(_SHADOW_MASK_DISTANCE)
+#if defined(_SHADOW_MASK_DISTANCE) || defined(_SHADOW_MASK_ALWAYS)
 	#define SHADOW_SHADOWMASK
 #endif
 //these include files requires the var above to be defined

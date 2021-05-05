@@ -25,9 +25,13 @@ int GetDirectionalLightCount()
 DirectionalShadowData GetDirectionalLightShadowData(int lightIndex, ShadowData shadowData)
 {
 	DirectionalShadowData data;
-	data.strength = _DirectionalLightShadowData[lightIndex].x * shadowData.strength;
+
+	//due to we want to use Global ShadowData strength(cascade strength) for realtime to baked transition
+	//We can not jius apply it here
+	data.strength = _DirectionalLightShadowData[lightIndex].x; //* shadowData.strength;
 	data.tileIndex = _DirectionalLightShadowData[lightIndex].y + shadowData.cascadeIndex;
 	data.normalBias = _DirectionalLightShadowData[lightIndex].z;
+	data.shadowMaskChannel = _DirectionalLightShadowData[lightIndex].w;
 	return data;
 }
 

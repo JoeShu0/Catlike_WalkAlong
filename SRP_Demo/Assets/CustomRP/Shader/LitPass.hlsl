@@ -79,7 +79,9 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 
 	//get the lightmap UV = GI_FRAGMENT_DATA(input)
 	GI gi = GetGI(GI_FRAGMENT_DATA(input), surface);
-
+	//shadow mask debug
+	//return  gi.shadowMask.shadows;
+	
 	float3 color = GetLighting(surface, brdf, gi);
 
 	//emission
