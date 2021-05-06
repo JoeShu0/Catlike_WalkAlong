@@ -57,6 +57,8 @@
             #pragma multi_compile_instancing
             //mul compile for using shadow mask
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
+            //For LOD cross Fade
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #include "LitPass.hlsl"
@@ -76,7 +78,10 @@
             #pragma target 3.5
             //#pragma shader_feature _CLIPPING//make unity complie 2 shader with and without _CLIPPING define
             #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
-            #pragma multi_compile_instancing//make unity complie 2 shader with and without GPU instancing
+            //make unity complie 2 shader with and without GPU instancing
+            #pragma multi_compile_instancing 
+            //For LOD cross Fade
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma vertex ShadowCasterPassVertex
             #pragma fragment ShadowCasterPassFragment
             #include "ShadowCasterPass.hlsl"

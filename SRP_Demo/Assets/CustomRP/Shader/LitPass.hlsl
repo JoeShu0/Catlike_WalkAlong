@@ -52,6 +52,9 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 {
 	//Setup the instance ID for Input
 	UNITY_SETUP_INSTANCE_ID(input);
+
+	//LOD fade, the fade factor is in x com of unity_LODFade
+	ClipLOD(input.positionCS.xy, unity_LODFade.x);
 	
 	//get the basemap * basecolor
 	float4 base = GetBase(input.baseUV);
