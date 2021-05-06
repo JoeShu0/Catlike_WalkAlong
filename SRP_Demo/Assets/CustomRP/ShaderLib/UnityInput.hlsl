@@ -11,6 +11,7 @@ CBUFFER_START(UnityPerDraw)
 
 	//Unity probes occlusion data for dynamic assets
 	float4 unity_ProbesOcclusion;
+	float4 unity_SpecCube0_HDR; //if the reflect map use HDR or not
 
 	float4 unity_LightmapST;//light map UV offset
 	float4 unity_DynamicLightmapST;//for SRP batcher

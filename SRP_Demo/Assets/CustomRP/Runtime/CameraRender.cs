@@ -92,7 +92,8 @@ public partial class CameraRender
                 PerObjectData.LightProbeProxyVolume |// LPPV data
                 PerObjectData.ShadowMask |//shadowmask texture
                 PerObjectData.OcclusionProbe|//for using lightmap on dynamic assets
-                PerObjectData.OcclusionProbeProxyVolume//same above for LPPV
+                PerObjectData.OcclusionProbeProxyVolume |//same above for LPPV
+                PerObjectData.ReflectionProbes//send reflection probes to GPU
         };
         drawingSettings.SetShaderPassName(1, LitShaderTadId);
 

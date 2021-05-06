@@ -7,6 +7,7 @@
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
         _Metallic("Metallic", Range(0,1)) = 0
         _Smoothness("Smoothness", Range(0,1)) = 0.5
+        _Fresnel ("Fresnel", Range(0,1)) = 1
         [Toggle(_CLIPPING)] _Clipping ("Alpha Clipping", Float) = 0 //this is a toggle, on shader will have "_Clipping", defined
         [Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha("Premultiply Alpha", Float) = 0
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Src Blend", Float) = 1

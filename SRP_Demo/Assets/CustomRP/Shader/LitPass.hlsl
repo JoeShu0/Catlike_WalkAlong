@@ -70,6 +70,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.alpha = base.a;
 	surface.metallic = GetMetallic(input.baseUV);
 	surface.smoothness = GetSmoothness(input.baseUV);
+	surface.fresnelStrength = GetFresnel(input.baseUV);
 	surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
 	surface.depth = -TransformWorldToView(input.positionWS).z;
 	surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
@@ -81,7 +82,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 #endif
 
 	//get the lightmap UV = GI_FRAGMENT_DATA(input)
-	GI gi = GetGI(GI_FRAGMENT_DATA(input), surface);
+	GI gi = GetGI(GI_FRAGMENT_DATA(input), surface, brdf);
 	//shadow mask debug
 	//return  gi.shadowMask.shadows;
 	
