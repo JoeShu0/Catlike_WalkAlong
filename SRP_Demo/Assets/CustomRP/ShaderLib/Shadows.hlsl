@@ -144,7 +144,7 @@ float FilterDirectionalShadow(float3 positionSTS)
 float GetCascadeShadow(DirectionalShadowData directionalSD, ShadowData globalSD, Surface surfaceWS)
 {
 	//offset the surface by the width of a texel to avoid shadow acne
-	float3 normalBias = surfaceWS.normal * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex].y);
+	float3 normalBias = surfaceWS.interpolatedNormalWS * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex].y);
 	//float3 normalBias = 0;
 	float3 positionSTS = mul(_DirectionalShadowMatrices[directionalSD.tileIndex], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
 
@@ -156,7 +156,7 @@ float GetCascadeShadow(DirectionalShadowData directionalSD, ShadowData globalSD,
 	//check the blend value and if in blend zone, sample the next cascade
 	if (globalSD.cascadeBlend < 1.0)
 	{
-		normalBias = surfaceWS.normal * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex + 1].y);
+		normalBias = surfaceWS.interpolatedNormalWS * (directionalSD.normalBias * _CascadeData[globalSD.cascadeIndex + 1].y);
 		positionSTS = mul(_DirectionalShadowMatrices[directionalSD.tileIndex + 1], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
 		shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, globalSD.cascadeBlend);
 	}

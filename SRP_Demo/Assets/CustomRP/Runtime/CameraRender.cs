@@ -31,7 +31,6 @@ public partial class CameraRender
             return;
         }
 
-
         buffer.BeginSample(SampleName);//Include lights and shadow rendering in main cam profile 
         ExecuteBuffer();
         //get transfer DirLight data to GPU
