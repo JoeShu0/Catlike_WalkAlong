@@ -44,7 +44,9 @@ Varyings LitPassVertex(Attributes input)
 
 	//transform UV based on permaterial ST
 	output.baseUV = TransformBaseUV(input.baseUV);
-	output.detailUV = TransformDetailUV(input.baseUV);
+	#if defined(_DETAIL_MAP)
+		output.detailUV = TransformDetailUV(input.baseUV);
+	#endif
 
 	output.positionWS = TransformObjectToWorld(input.positionOS);
 	output.positionCS = TransformWorldToHClip(output.positionWS);
@@ -68,28 +70,37 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	//LOD fade, the fade factor is in x com of unity_LODFade
 	ClipLOD(input.positionCS.xy, unity_LODFade.x);
 	
+	//use the new packed config instead of UV
+	InputConfig config = GetInputConfig(input.baseUV, input.detailUV);
+	#if defined(_MASK_MAP)
+		config.useMask = true;
+	#endif
+	#if defined(_DETAIL_MAP)
+		config.detailUV = input.detailUV;
+		config.useDetail = true;
+	#endif
 	//get the basemap * basecolor
-	float4 base = GetBase(input.baseUV, input.detailUV);
+	float4 base = GetBase(config);
 	
 #if defined(_CLIPPING)
-	clip(base.a - GetCutoff(input.baseUV));
+	clip(base.a - GetCutoff(config));
 #endif
 
 	Surface surface;
 	surface.position = input.positionWS;
 	#if defined(_NORMAL_MAP)
 		surface.interpolatedNormalWS = input.normalWS;
-		surface.normal = NormalTangentToWorld(GetNormalTS(input.baseUV, input.detailUV), input.normalWS, input.tangentWS);
+		surface.normal = NormalTangentToWorld(GetNormalTS(config), input.normalWS, input.tangentWS);
 	#else
 		surface.normal = normalize(input.normalWS);
 		surface.interpolatedNormalWS = surface.normal;
 	#endif
 	surface.color = base.rgb;
 	surface.alpha = base.a;
-	surface.metallic = GetMetallic(input.baseUV);
-	surface.occlusion = GetOcclusion(input.baseUV);
-	surface.smoothness = GetSmoothness(input.baseUV, input.detailUV);
-	surface.fresnelStrength = GetFresnel(input.baseUV);
+	surface.metallic = GetMetallic(config);
+	surface.occlusion = GetOcclusion(config);
+	surface.smoothness = GetSmoothness(config);
+	surface.fresnelStrength = GetFresnel(config);
 	surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
 	surface.depth = -TransformWorldToView(input.positionWS).z;
 	surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
@@ -108,7 +119,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	float3 color = GetLighting(surface, brdf, gi);
 
 	//emission
-	color += GetEmission(input.baseUV);
+	color += GetEmission(config);
 
 	//return float4(surface.normal,1.0f);
 

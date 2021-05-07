@@ -12,46 +12,69 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 // the error assert 0==m_CurrentBuildInBindMask may cased by the GPU instance option os not on in the material
 
-float GetFresnel(float2 baseUV)
-{
-	return 0.0;
+#define INPUT_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
+
+struct InputConfig {
+	float2 baseUV;
+};
+
+InputConfig GetInputConfig (float2 baseUV) {
+	InputConfig c;
+	c.baseUV = baseUV;
+	return c;
 }
+
 
 float2 TransformBaseUV(float2 baseUV)
 {
-	float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+	float4 baseST = INPUT_PROP(_BaseMap_ST);
 	return baseUV * baseST.xy + baseST.zw;
 }
 
+float2 TransformDetailUV (InputConfig c) {
+	return 0.0;
+}
+
 //get base color = BC map * bc param
-float4 GetBase(float2 baseUV)
+float4 GetBase(InputConfig c)
 {
-	float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, baseUV);
-	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+	float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, c.baseUV);
+	float4 baseColor = INPUT_PROP(_BaseColor);
 	float4 base = baseColor * map;
 	return base;
 }
 
-float3 GetEmission(float2 baseUV)
-{
-	return GetBase(baseUV).rgb;
+float4 GetMask (InputConfig c) {
+	return 1.0;
 }
 
-// below functions don't need UV, But for later use we do need it for texture sample
-float GetCutoff(float2 baseUV)
-{
-	return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff);
-}
-/*
-float GetMetallic(float2 baseUV)
-{
-	return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
+float4 GetDetail (InputConfig c) {
+	return 0.0;
 }
 
-float GetSmoothness(float2 baseUV)
-{
-	return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
+float3 GetNormalTS (InputConfig c) {
+	return float3(0.0, 0.0, 1.0);
 }
-*/
+
+float3 GetEmission (InputConfig c) {
+	return GetBase(c).rgb;
+}
+
+float GetCutoff (InputConfig c) {
+	return INPUT_PROP(_Cutoff);
+}
+
+float GetMetallic (InputConfig c) {
+	return 0.0;
+}
+
+float GetSmoothness (InputConfig c) {
+	return 0.0;
+}
+
+float GetFresnel (InputConfig c) {
+	return 0.0;
+}
+
 
 #endif

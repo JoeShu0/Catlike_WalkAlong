@@ -5,6 +5,8 @@
         _BaseMap("Texture", 2D) = "White"{}
         _BaseColor("Color", Color) = (0.5,0.5,0.5,1.0)
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+        //mask map
+        [Toggle(_MASK_MAP)] _MaskMapToggle ("Mask Map", Float) = 0
         [NoScaleOffset] _MaskMap("MASK (MODS)", 2D) = "white" {}
         _Metallic("Metallic", Range(0,1)) = 0
         _Occlusion("Occlusion", Range(0,1)) = 1
@@ -19,6 +21,7 @@
         [NoScaleOffset] _EmissionMap("Emission", 2D) = "white"{}
         [HDR] _EmissionColor("Emission",Color) = (0.0,0.0,0.0,0.0)
         //Detail map
+        [Toggle(_DETAIL_MAP)] _DetailMapToggle ("Detail Maps", Float) = 0
         _DetailMap("Details", 2D) = "linearGrey"{}
         _DetailAlbedo("DetailAlbedo", Range(0,1)) = 1
         _DetailSmoothness("DetailSmoothness", Range(0,1)) = 1
@@ -77,6 +80,8 @@
 
             //OptionalToggles
             #pragma shader_feature _NORMAL_MAP
+            #pragma shader_feature _MASK_MAP
+            #pragma shader_feature _DETAIL_MAP
 
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma vertex LitPassVertex

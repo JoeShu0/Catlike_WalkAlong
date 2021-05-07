@@ -47,11 +47,13 @@ float4 ShadowCasterPassFragment(Varyings input) : SV_TARGET
 	//LOD fade, the fade factor is in x com of unity_LODFade
 	ClipLOD(input.positionCS.xy, unity_LODFade.x);
 	
+	//use the new packed config instead of UV
+	InputConfig config = GetInputConfig(input.baseUV);
 	//get the basemap * basecolor
-	float4 base = GetBase(input.baseUV);
+	float4 base = GetBase(config);
 	
 #if defined(_SHADOWS_CLIP)
-	clip(base.a - GetCutoff(input.baseUV));
+	clip(base.a - GetCutoff(config));
 #elif defined(_SHADOWS_DITHER)
 	float dither = InterleavedGradientNoise(input.positionCS.xy, 0);
 	clip(base.a - dither);

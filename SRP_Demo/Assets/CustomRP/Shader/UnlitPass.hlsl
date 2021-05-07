@@ -41,11 +41,14 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 	//Setup the instance ID for Input
 	UNITY_SETUP_INSTANCE_ID(input);
 
+	//use the new packed config instead of UV
+	InputConfig config = GetInputConfig(input.baseUV);
+
 	//get the basemap * basecolor
-	float4 Color = GetBase(input.baseUV);
+	float4 Color = GetBase(config);
 
 #if defined(_CLIPPING)
-	clip(Color.a - GetCutoff(input.baseUV));
+	clip(Color.a - GetCutoff(config));
 #endif
 	return Color;
 }
