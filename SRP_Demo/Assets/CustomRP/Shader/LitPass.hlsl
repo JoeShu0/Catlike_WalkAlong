@@ -46,6 +46,8 @@ Varyings LitPassVertex(Attributes input)
 	output.baseUV = TransformBaseUV(input.baseUV);
 	#if defined(_DETAIL_MAP)
 		output.detailUV = TransformDetailUV(input.baseUV);
+	#else
+		output.detailUV = 0.0;
 	#endif
 
 	output.positionWS = TransformObjectToWorld(input.positionOS);

@@ -68,6 +68,7 @@
     <Compile Include="Assets\CustomRP\Examples\PerObjectMaterialProperties.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CameraRender.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CameraRender.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipeline.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipeline.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipelineAsset.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Lighting.cs" />

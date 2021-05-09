@@ -39,6 +39,12 @@ struct DirectionalShadowData
 	int shadowMaskChannel;
 };
 
+struct OtherShadowData
+{
+	float strength;
+	int shadowMaskChannel;
+};
+
 struct ShadowMask
 {
 	bool b_always;
@@ -233,6 +239,26 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directionalSD, Shado
 		shadow = MixBakedAndRealtimeShadows(globalSD, CascadeShadow, directionalSD.shadowMaskChannel, directionalSD.strength);
 	}
 	
+	return shadow;
+}
+
+float GetOtherShadowAttenuation(OtherShadowData other, ShadowData GlobalSD, Surface surfaceWS)
+{
+	#if !defined(_RECEIVE_SHADOWS)
+		return 1.0;
+	#endif
+
+	float shadow;
+	if(other.strength > 0.0)
+	{
+		shadow = GetBakedShadow(
+			GlobalSD.shadowMask, other.shadowMaskChannel, other.strength
+		);
+	}
+	else
+	{
+		shadow = 1.0;
+	}
 	return shadow;
 }
 

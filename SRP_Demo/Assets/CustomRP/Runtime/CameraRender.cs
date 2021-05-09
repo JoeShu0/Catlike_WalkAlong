@@ -17,7 +17,10 @@ public partial class CameraRender
     static ShaderTagId LitShaderTadId = new ShaderTagId("CustomLit");
 
 
-    public void Render(ScriptableRenderContext IN_context, Camera IN_camera, bool useDynameicBatching, bool useGPUInstancing, ShadowSettings shadowSetting)
+    public void Render(ScriptableRenderContext IN_context, 
+        Camera IN_camera, bool useDynameicBatching, 
+        bool useGPUInstancing, bool useLightPerObject,
+        ShadowSettings shadowSetting)
     {
         this.context = IN_context;
         this.camera = IN_camera;
@@ -35,12 +38,12 @@ public partial class CameraRender
         ExecuteBuffer();
         //get transfer DirLight data to GPU
         //Setup shadow RT and shadow rendering
-        lighting.Setup(context, cullingResults, shadowSetting);
+        lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject);
         buffer.EndSample(SampleName);
 
         //Setup rendertarget for normal boject rendering
         Setup();
-        DrawVidibleGeometry(useDynameicBatching, useGPUInstancing);
+        DrawVisibleGeometry(useDynameicBatching, useGPUInstancing, useLightPerObject);
 
         //this makes the Legacy shader draw upon the tranparent object
         //makes it wired, but they are not supported who cares~
@@ -77,8 +80,13 @@ public partial class CameraRender
         
     }
 
-    void DrawVidibleGeometry(bool useDynameicBatching, bool useGPUInstancing)
+    void DrawVisibleGeometry(bool useDynameicBatching, bool useGPUInstancing, bool useLightPerObject)
     {
+        //per Object light data stuff
+        PerObjectData lightPerObjectFlags = useLightPerObject ?
+            PerObjectData.LightData | PerObjectData.LightIndices :
+            PerObjectData.None;
+        
         //draw opaque
         var sortingSettings = new SortingSettings(camera) { 
             criteria = SortingCriteria.CommonOpaque};
@@ -92,7 +100,8 @@ public partial class CameraRender
                 PerObjectData.ShadowMask |//shadowmask texture
                 PerObjectData.OcclusionProbe|//for using lightmap on dynamic assets
                 PerObjectData.OcclusionProbeProxyVolume |//same above for LPPV
-                PerObjectData.ReflectionProbes//send reflection probes to GPU
+                PerObjectData.ReflectionProbes |//send reflection probes to GPU
+                lightPerObjectFlags
         };
         drawingSettings.SetShaderPassName(1, LitShaderTadId);
 

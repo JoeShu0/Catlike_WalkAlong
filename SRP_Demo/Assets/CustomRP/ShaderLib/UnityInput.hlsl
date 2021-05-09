@@ -7,7 +7,11 @@ CBUFFER_START(UnityPerDraw)
 	float4x4 unity_ObjectToWorld;
 	float4x4 unity_WorldToObject;
 	float4 unity_LODFade;
+
 	real4 unity_WorldTransformParams;
+	//perobject light stuff must following unity_WorldTransformParams
+	real4 unity_LightData;//number of lights in Y
+	real4 unity_LightIndices[2];//up to 8 lights index
 
 	//Unity probes occlusion data for dynamic assets
 	float4 unity_ProbesOcclusion;

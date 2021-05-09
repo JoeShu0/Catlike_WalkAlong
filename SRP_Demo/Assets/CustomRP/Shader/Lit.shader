@@ -83,6 +83,9 @@
             #pragma shader_feature _MASK_MAP
             #pragma shader_feature _DETAIL_MAP
 
+            //per object lights
+            #pragma multi_compile _ _LIGHTS_PER_OBJECT
+
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
