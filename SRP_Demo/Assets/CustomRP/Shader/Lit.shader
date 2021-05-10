@@ -66,6 +66,9 @@
             #pragma shader_feature _PREMULTIPLY_ALPHA
             //multicompile for shadow sample "_ " means use PCF2x2 when no keywords
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7 
+            //multicompile for shadow sample "_ " means use PCF2x2 when no keywords
+            #pragma multi_compile _ _OTHER_PCF3 _OTHER_PCF5 _OTHER_PCF7 
+
             //multicompile for shadow cascade blending
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             //receive shadows or not

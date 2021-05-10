@@ -98,8 +98,8 @@ ShadowData GetShadowData(Surface surfaceWS)
 			break;
 		}
 	}
-	
-	if (i == _CascadeCount)
+	//make sure there are cascade and we are cutting on the last cascade
+	if (i == _CascadeCount && _CascadeCount > 0)
 	{
 		//this makes sure when frag goes outside the shadow distance, strength will be 0
 		data.strength = 0.0;
@@ -194,7 +194,7 @@ float GetBakedShadow(ShadowMask mask, int channel, float strength)
 	return 1.0;
 }
 
-float MixBakedAndRealtimeShadows(ShadowData globalSD, float CascadeShadow, int shadowMaskChannel, float directionalSDstrength)
+float MixBakedAndRealtimeShadows(ShadowData globalSD, float CascadeShadow, int shadowMaskChannel, float SDstrength)
 {
 	float baked = GetBakedShadow(globalSD.shadowMask, shadowMaskChannel);
 	float shadow = CascadeShadow;
@@ -203,7 +203,7 @@ float MixBakedAndRealtimeShadows(ShadowData globalSD, float CascadeShadow, int s
 	{
 		shadow = lerp(1.0, CascadeShadow, globalSD.strength);
 		shadow = min(baked, shadow);
-		return lerp(1.0, shadow, directionalSDstrength);
+		return lerp(1.0, shadow, SDstrength);
 	}
 	//lerp baked shadow and cascade shadow in depth
 	if (globalSD.shadowMask.distance)
@@ -211,10 +211,11 @@ float MixBakedAndRealtimeShadows(ShadowData globalSD, float CascadeShadow, int s
 		//trasition from real time to baked when globalSD(cascade) goes out of range
 		shadow = lerp(baked, shadow, globalSD.strength);
 		//shadow = lerp(baked, shadow, 0.5f);
-		return lerp(1.0, shadow, directionalSDstrength);
+		return lerp(1.0, shadow, SDstrength);
 		//shadow = baked;
 	}
-	return lerp(1.0, shadow, directionalSDstrength* globalSD.strength);
+	//real time shadow
+	return lerp(1.0, shadow, SDstrength* globalSD.strength);
 	//return lerp(1.0, shadow, strength);
 }
 
@@ -242,22 +243,33 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directionalSD, Shado
 	return shadow;
 }
 
-float GetOtherShadowAttenuation(OtherShadowData other, ShadowData GlobalSD, Surface surfaceWS)
+float GetOtherShadow(
+	OtherShadowData other, ShadowData GlobalSD, Surface surfaceWS)
+{
+	return 1.0;
+}
+
+float GetOtherShadowAttenuation(OtherShadowData otherSD, ShadowData GlobalSD, Surface surfaceWS)
 {
 	#if !defined(_RECEIVE_SHADOWS)
 		return 1.0;
 	#endif
 
 	float shadow;
-	if(other.strength > 0.0)
+	if(otherSD.strength * GlobalSD.strength <= 0.0)
 	{
+		//strength < 0 for baked lighting
 		shadow = GetBakedShadow(
-			GlobalSD.shadowMask, other.shadowMaskChannel, other.strength
+			GlobalSD.shadowMask, otherSD.shadowMaskChannel, abs(otherSD.strength)
 		);
 	}
 	else
 	{
-		shadow = 1.0;
+		shadow = GetOtherShadow(otherSD, GlobalSD, surfaceWS);
+		shadow = MixBakedAndRealtimeShadows(
+			GlobalSD, shadow,
+			otherSD.shadowMaskChannel,
+			otherSD.strength);
 	}
 	return shadow;
 }
