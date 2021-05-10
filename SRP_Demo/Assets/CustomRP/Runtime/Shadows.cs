@@ -446,6 +446,10 @@ public class Shadows
     public void CleanUp()
     {
         buffer.ReleaseTemporaryRT(dirShadowAtlasId);
+        if (ShadowedOtherLightCount > 0)
+        {
+            buffer.ReleaseTemporaryRT(otherShadowAtlasId);
+        }
         ExecuteBuffer();
     }
 
