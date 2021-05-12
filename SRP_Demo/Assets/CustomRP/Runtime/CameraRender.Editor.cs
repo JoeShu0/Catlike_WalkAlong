@@ -4,11 +4,11 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 partial class CameraRender
 {
-    partial void DrawGizmos();
     partial void DrawUnsupportedShaders();
     partial void PrepareForSceneView();
     partial void PrepareBuffer();
-
+    partial void DrawGizmosBeforeFX();
+    partial void DrawGizmosAfterFX();
 
 
 #if UNITY_EDITOR
@@ -26,11 +26,20 @@ partial class CameraRender
 
     static Material errorMaterial;
 
-    partial void DrawGizmos()
+    partial void DrawGizmosBeforeFX()
     {
         if (Handles.ShouldRenderGizmos())
         {
             context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+            //context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+        }
+    }
+
+    partial void DrawGizmosAfterFX()
+    {
+        if (Handles.ShouldRenderGizmos())
+        {
+            //context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
             context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
         }
     }

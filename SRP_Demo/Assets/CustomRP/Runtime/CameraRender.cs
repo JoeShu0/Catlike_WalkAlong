@@ -8,6 +8,8 @@ public partial class CameraRender
 
     Lighting lighting = new Lighting();
 
+    PostFXStack postFXStack = new PostFXStack();
+
     const string buffername = "Render Camera";
     CommandBuffer buffer = new CommandBuffer { name = buffername };
 
@@ -16,11 +18,15 @@ public partial class CameraRender
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
     static ShaderTagId LitShaderTadId = new ShaderTagId("CustomLit");
 
+    static int frameBufferId = Shader.PropertyToID("_CameraFrameBuffer");
+
+    
+
 
     public void Render(ScriptableRenderContext IN_context, 
         Camera IN_camera, bool useDynameicBatching, 
         bool useGPUInstancing, bool useLightPerObject,
-        ShadowSettings shadowSetting)
+        ShadowSettings shadowSetting, PostFXSettings postFXSettings)
     {
         this.context = IN_context;
         this.camera = IN_camera;
@@ -39,6 +45,10 @@ public partial class CameraRender
         //get transfer DirLight data to GPU
         //Setup shadow RT and shadow rendering
         lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject);
+
+        //setup postFX
+        postFXStack.Setup(context, camera, postFXSettings);
+
         buffer.EndSample(SampleName);
 
         //Setup rendertarget for normal boject rendering
@@ -49,10 +59,16 @@ public partial class CameraRender
         //makes it wired, but they are not supported who cares~
         DrawUnsupportedShaders();
 
-        DrawGizmos();
+        DrawGizmosBeforeFX();
 
-        //cleanup light(null) and shadows(render target)
-        lighting.CleanUp();
+        if (postFXStack.IsActive)
+        {
+            postFXStack.Render(frameBufferId);
+        }
+
+        DrawGizmosAfterFX();
+
+        Cleanup();
 
         //all action will be buffered and render action only begin after submit!
         Submit();
@@ -64,6 +80,20 @@ public partial class CameraRender
         context.SetupCameraProperties(camera);
         //Get the clear flags from camera
         CameraClearFlags flags = camera.clearFlags;
+
+        //setup camera frame buffer for post FX
+        if (postFXStack.IsActive)
+        {
+            if (flags > CameraClearFlags.Color)
+            { flags = CameraClearFlags.Color; }
+
+            buffer.GetTemporaryRT(frameBufferId, camera.pixelWidth, camera.pixelHeight,
+                32, FilterMode.Bilinear, RenderTextureFormat.Default);
+            buffer.SetRenderTarget( frameBufferId, 
+                RenderBufferLoadAction.DontCare,
+                RenderBufferStoreAction.Store);
+        }
+
         //clearRT not need to be in profiling, it is self sampled using the buffer name
         buffer.ClearRenderTarget(
             flags <= CameraClearFlags.Depth,
@@ -152,5 +182,16 @@ public partial class CameraRender
         return false;
     }
 
+
+    void Cleanup()
+    {
+        //cleanup light(null) and shadows(render target)
+        lighting.CleanUp();
+
+        if (postFXStack.IsActive)
+        {
+            buffer.ReleaseTemporaryRT(frameBufferId);
+        }
+    }
     
 }

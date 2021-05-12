@@ -72,8 +72,12 @@
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipeline.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipelineAsset.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Lighting.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\PostFXSettings.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\PostFXStack.Editor.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\PostFXStack.cs" />
     <Compile Include="Assets\CustomRP\Runtime\ShadowSettings.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Shadows.cs" />
+    <None Include="Assets\CustomRP\Shader\Post FX Stack.shader" />
     <None Include="Assets\CustomRP\Shader\LitPass.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Common.hlsl" />
     <None Include="Assets\CustomRP\Shader\UnlitPass.hlsl" />
@@ -82,6 +86,7 @@
     <None Include="Assets\CustomRP\Shader\Unlit.shader" />
     <None Include="Assets\CustomRP\Shader\MetaPass.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Lighting.hlsl" />
+    <None Include="Assets\CustomRP\Shader\PostFXStackPasses.hlsl" />
     <None Include="Assets\CustomRP\Shader\Lit.shader" />
     <None Include="Assets\CustomRP\ShaderLib\Shadows.hlsl" />
     <None Include="Assets\CustomRP\Shader\LitInput.hlsl" />
