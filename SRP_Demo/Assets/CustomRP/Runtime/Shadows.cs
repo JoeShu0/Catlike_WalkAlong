@@ -3,7 +3,7 @@ using UnityEngine.Rendering;
 using Unity.Collections;
 public class Shadows
 {
-    int debug = 1;
+    //int debug = 1;
     const string buffername = "Shadows";
 
     static string[] directionalFilterKeywords = {
@@ -191,7 +191,7 @@ public class Shadows
             isPoint = isPoint};
 
         Vector4 data = new Vector4(
-                light.shadowStrength, ShadowedOtherLightCount++,
+                light.shadowStrength, ShadowedOtherLightCount,
                 isPoint ? 1f : 0f ,
                 maskChannel) ;
 
@@ -252,6 +252,9 @@ public class Shadows
     void RenderDirectionalShadows()
     {
         int atlasSize = (int)shadowSettings.directional.atlasSize;
+        //buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
+        atlasSizes.x = atlasSize;
+        atlasSizes.y = 1f / atlasSize;
         //create temp rendertex to save shadow depth tex
         buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize,
             32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
@@ -259,6 +262,8 @@ public class Shadows
         buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         //clear the buffer for rendering
         buffer.ClearRenderTarget(true, false, Color.clear);
+        //Pancaking is only useful in directional shadow rendering
+        buffer.SetGlobalFloat(shadowPancakingId, 1f);
         //begin profile
         buffer.BeginSample(buffername);
         ExecuteBuffer();
@@ -287,13 +292,6 @@ public class Shadows
         SetKeywords(directionalFilterKeywords, (int)shadowSettings.directional.filter - 1);
         SetKeywords(cascadeBlendKeywords, (int)shadowSettings.directional.cascadeBlendM - 1);
 
-        //buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
-        atlasSizes.x = atlasSize;
-        atlasSizes.y = 1f / atlasSize;
-
-        //Pancaking is only useful in directional shadow rendering
-        buffer.SetGlobalFloat(shadowPancakingId, 1f);
-
         //end profile
         buffer.EndSample(buffername);
         ExecuteBuffer();
@@ -302,6 +300,9 @@ public class Shadows
     void RenderOtherShadows()
     {
         int atlasSize = (int)shadowSettings.other.atlasSize;
+        //buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
+        atlasSizes.z = atlasSize;
+        atlasSizes.w = 1f / atlasSize;
         //create temp rendertex to save shadow depth tex
         buffer.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize,
             32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
@@ -309,6 +310,8 @@ public class Shadows
         buffer.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         //clear the buffer for rendering
         buffer.ClearRenderTarget(true, false, Color.clear);
+        //Pancaking is only useful in directional shadow rendering
+        buffer.SetGlobalFloat(shadowPancakingId, 0f);
         //begin profile
         buffer.BeginSample(buffername);
         ExecuteBuffer();
@@ -339,12 +342,9 @@ public class Shadows
         //set the shader keywords
         SetKeywords(otherFilterKeywords, (int)shadowSettings.other.filter - 1);
 
-        //buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
-        atlasSizes.z = atlasSize;
-        atlasSizes.w = 1f / atlasSize;
+        
 
-        //Pancaking is only useful in directional shadow rendering
-        buffer.SetGlobalFloat(shadowPancakingId, 0f);
+        
 
         //end profile
         buffer.EndSample(buffername);

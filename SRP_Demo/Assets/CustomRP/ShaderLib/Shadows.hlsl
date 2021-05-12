@@ -301,18 +301,20 @@ float GetOtherShadow(
 {
 	float tileIndex = other.tileIndex;
 	float3 lightPlane = other.spotDirectionWS;
+	
 	if (other.isPoint)
 	{
 		float faceOffset = CubeMapFaceID(-other.lightDirectionWS);
 		tileIndex += faceOffset;
 		lightPlane = pointShadowPlanes[faceOffset];
 	}
-
+	
 	float4 tileData = _OtherShadowTiles[tileIndex];
 	float3 surfaceToLight = other.lightPositionWS - surfaceWS.position;
 	float distanceToLightPlane = dot(surfaceToLight, lightPlane);
 	float3 normalBias = surfaceWS.interpolatedNormalWS * (distanceToLightPlane * tileData.w);
-	float4 positionSTS = mul(_OtherShadowMatrices[tileIndex], float4(surfaceWS.position + normalBias, 1.0));
+	float4 positionSTS = mul(_OtherShadowMatrices[tileIndex], 
+		float4(surfaceWS.position + normalBias, 1.0));
 	
 	//no cascade so divide by w ??
 	return FilterOtherShadow(positionSTS.xyz/ positionSTS.w, tileData.xyz);
