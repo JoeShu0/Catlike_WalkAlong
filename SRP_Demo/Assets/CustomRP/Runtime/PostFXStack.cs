@@ -11,14 +11,11 @@ public partial class PostFXStack
     };
 
     ScriptableRenderContext context;
-
     Camera camera;
-
     PostFXSettings settings;
-
     const int maxBloomPyramidLevel = 16;
-
     int bloomPyramidId;
+    bool useHDR;
 
     public bool IsActive => settings != null;
 
@@ -28,7 +25,8 @@ public partial class PostFXStack
         BloomHorizontal,
         BloomVertical,
         BloomCombine,
-        BloomPrefilter
+        BloomPrefilter,
+        BloomPrefilterFireFlies
     }
 
     int fxSourceId = Shader.PropertyToID("_PostFXSource");
@@ -40,11 +38,13 @@ public partial class PostFXStack
 
     public void Setup
         (ScriptableRenderContext context,
-        Camera camera, PostFXSettings settings)
+        Camera camera, PostFXSettings settings,
+        bool useHDR)
     {
         this.context = context;
         this.camera = camera;
         this.settings = camera.cameraType <= CameraType.SceneView ? settings : null;
+        this.useHDR = useHDR;
         ApplySceneViewState();
     }
 
@@ -102,11 +102,12 @@ public partial class PostFXStack
         threshold.w = 0.25f / (threshold.y + 0.00001f);
         threshold.y -= threshold.x;
         buffer.SetGlobalVector(bloomThreshold, threshold);
-
-        RenderTextureFormat format = RenderTextureFormat.Default;
+        //unform format for easier switch HDR
+        RenderTextureFormat format = useHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
         //We start bloom at half resolution
         buffer.GetTemporaryRT(bloomPrefilterId, width, height, 0, FilterMode.Bilinear, format);
-        Draw(SourceId, bloomPrefilterId, Pass.BloomPrefilter);
+        Draw(SourceId, bloomPrefilterId, 
+            settings.Bloom.Fade_FireFlies? Pass.BloomPrefilterFireFlies : Pass.BloomPrefilter);
         width /= 2;
         height /= 2;
         //We are using 2 pass per bloom level

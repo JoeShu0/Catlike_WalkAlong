@@ -20,11 +20,13 @@ public partial class CameraRender
 
     static int frameBufferId = Shader.PropertyToID("_CameraFrameBuffer");
 
+    bool useHDR;
+
     
 
 
     public void Render(ScriptableRenderContext IN_context, 
-        Camera IN_camera, bool useDynameicBatching, 
+        Camera IN_camera, bool allowHDR, bool useDynameicBatching, 
         bool useGPUInstancing, bool useLightPerObject,
         ShadowSettings shadowSetting, PostFXSettings postFXSettings)
     {
@@ -40,6 +42,8 @@ public partial class CameraRender
             return;
         }
 
+        this.useHDR = allowHDR && camera.allowHDR;
+
         buffer.BeginSample(SampleName);//Include lights and shadow rendering in main cam profile 
         ExecuteBuffer();
         //get transfer DirLight data to GPU
@@ -47,7 +51,7 @@ public partial class CameraRender
         lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject);
 
         //setup postFX
-        postFXStack.Setup(context, camera, postFXSettings);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR);
 
         buffer.EndSample(SampleName);
 
@@ -87,8 +91,9 @@ public partial class CameraRender
             if (flags > CameraClearFlags.Color)
             { flags = CameraClearFlags.Color; }
 
-            buffer.GetTemporaryRT(frameBufferId, camera.pixelWidth, camera.pixelHeight,
-                32, FilterMode.Bilinear, RenderTextureFormat.Default);
+            buffer.GetTemporaryRT(frameBufferId, camera.pixelWidth, 
+                camera.pixelHeight, 32, FilterMode.Bilinear, 
+                useHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default);
             buffer.SetRenderTarget( frameBufferId, 
                 RenderBufferLoadAction.DontCare,
                 RenderBufferStoreAction.Store);

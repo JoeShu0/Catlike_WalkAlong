@@ -4,14 +4,16 @@ using UnityEngine.Rendering;
 public partial class CustomRenderPipeline : RenderPipeline
 {
     CameraRender render = new CameraRender();
-
+    bool allowHDR;
     bool useDynameicBatching, useGPUInstancing ,useLightPerObject;
 
     ShadowSettings shadowsetting;
 
     PostFXSettings postFXSettings;
+    
 
     public CustomRenderPipeline(
+        bool allowHDR,
         bool useDynameicBatching, 
         bool useGPUInstancing, 
         bool useSRPBatcher,
@@ -25,8 +27,8 @@ public partial class CustomRenderPipeline : RenderPipeline
         GraphicsSettings.lightsUseLinearIntensity = true;
         this.shadowsetting = shadowsetting;
         this.useLightPerObject = useLightPerObject;
-
         this.postFXSettings = postFXSettings;
+        this.allowHDR = allowHDR;
 
         //
         InitializeForEditor();
@@ -36,7 +38,7 @@ public partial class CustomRenderPipeline : RenderPipeline
     {
         foreach(Camera camera in cameras)
         {
-            render.Render(context, camera, 
+            render.Render(context, camera, allowHDR,
                 useDynameicBatching, useGPUInstancing, 
                 useLightPerObject, shadowsetting,
                 postFXSettings);

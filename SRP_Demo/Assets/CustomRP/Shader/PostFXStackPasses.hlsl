@@ -1,6 +1,7 @@
 #ifndef CUSTOMPOST_FX_PASSES_INCLUDED
 #define CUSTOMPOST_FX_PASSES_INCLUDED
 
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Filtering.hlsl"
 
 
@@ -140,6 +141,35 @@ float4 BloomCombinePassFragment(Varyings input) : SV_TARGET
 float4 BloomPrefilterPassFragment(Varyings input) : SV_TARGET
 {
 	float3 color = ApplyBloomThreshold(GetSource(input.screenUV).rgb);
+	return float4(color, 1.0);
+}
+
+
+float4 BloomPrefilterFireFliesPassFragment(Varyings input) : SV_TARGET
+{
+	// In order to get rid of fire flies, we are going to blurr the image 
+	// 3x3 above the 2x2 bilinear, make it 6x6
+	//we also use weighted average based on luminance
+	float3 color = 0.0;
+	float weightSum = 0.0;
+	//because we are goingto gaussian blur after this we can reduce the sample down to 5
+	float2 offsets[] = {
+		float2(0.0, 0.0),float2(-1.0, -1.0), float2(-1.0, 1.0), float2(1.0, -1.0), float2(1.0, 1.0)
+		//,float2(-1.0, 0.0), float2(1.0, 0.0), float2(0.0, -1.0), float2(0.0, 1.0)
+	};
+	for(int i = 0; i < 5 ;i++)
+	{
+		float3 c = 
+			GetSource(input.screenUV + offsets[i] * GetSourceTexelSize().xy *2.0).rgb;
+		
+		c = ApplyBloomThreshold(c);
+		//weighted average
+		float w = 1.0/ (Luminance(c) + 1.0);
+		color += c * w;
+		weightSum += w;
+	}
+
+	color /= weightSum;
 	return float4(color, 1.0);
 }
 
