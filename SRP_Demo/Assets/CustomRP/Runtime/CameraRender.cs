@@ -28,7 +28,7 @@ public partial class CameraRender
     public void Render(ScriptableRenderContext IN_context, 
         Camera IN_camera, bool allowHDR, bool useDynameicBatching, 
         bool useGPUInstancing, bool useLightPerObject,
-        ShadowSettings shadowSetting, PostFXSettings postFXSettings)
+        ShadowSettings shadowSetting, PostFXSettings postFXSettings, int colorLUTResolution)
     {
         this.context = IN_context;
         this.camera = IN_camera;
@@ -51,7 +51,7 @@ public partial class CameraRender
         lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject);
 
         //setup postFX
-        postFXStack.Setup(context, camera, postFXSettings, useHDR);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution);
 
         buffer.EndSample(SampleName);
 
