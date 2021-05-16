@@ -9,6 +9,7 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
 	UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
 	UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+	UNITY_DEFINE_INSTANCED_PROP(float, _ZWrite)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 // the error assert 0==m_CurrentBuildInBindMask may cased by the GPU instance option os not on in the material
 
@@ -74,6 +75,12 @@ float GetSmoothness (InputConfig c) {
 
 float GetFresnel (InputConfig c) {
 	return 0.0;
+}
+
+float GetFinalAlpha(float alpha)
+{
+	//if the material write depth, Alpha should be 1
+	return INPUT_PROP(_ZWrite) ? 1.0 : alpha;
 }
 
 

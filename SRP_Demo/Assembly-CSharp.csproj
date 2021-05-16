@@ -68,13 +68,17 @@
     <Compile Include="Assets\CustomRP\Examples\PerObjectMaterialProperties.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CameraRender.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CameraRender.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\CameraSettings.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipeline.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipeline.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipelineAsset.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipelineAsset.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\CustomRenderPipelineCamera.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Lighting.cs" />
     <Compile Include="Assets\CustomRP\Runtime\PostFXSettings.cs" />
     <Compile Include="Assets\CustomRP\Runtime\PostFXStack.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\PostFXStack.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\ReinterpretExtensions.cs" />
     <Compile Include="Assets\CustomRP\Runtime\ShadowSettings.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Shadows.cs" />
     <None Include="Assets\CustomRP\Shader\Post FX Stack.shader" />
@@ -94,6 +98,7 @@
     <None Include="Assets\CustomRP\ShaderLib\UnityInput.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\GI.hlsl" />
     <None Include="Assets\CustomRP\Shader\UnlitInput.hlsl" />
+    <None Include="Assets\CustomRP\Shader\UICustomBlending.shader" />
     <None Include="Assets\CustomRP\ShaderLib\BRDF.hlsl" />
     <Reference Include="UnityEngine">
       <HintPath>D:/Unity_Editor/2019.4.7f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

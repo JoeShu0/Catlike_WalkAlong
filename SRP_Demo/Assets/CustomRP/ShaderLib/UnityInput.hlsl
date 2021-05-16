@@ -13,6 +13,9 @@ CBUFFER_START(UnityPerDraw)
 	real4 unity_LightData;//number of lights in Y
 	real4 unity_LightIndices[2];//up to 8 lights index
 
+	//object layer mask
+	float4 unity_RenderingLayer;
+
 	//Unity probes occlusion data for dynamic assets
 	float4 unity_ProbesOcclusion;
 	float4 unity_SpecCube0_HDR; //if the reflect map use HDR or not

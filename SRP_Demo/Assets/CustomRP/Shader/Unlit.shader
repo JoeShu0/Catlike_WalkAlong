@@ -22,7 +22,7 @@
             
         Pass
         {
-            Blend [_SrcBlend] [_DstBlend]
+            Blend [_SrcBlend] [_DstBlend], One OneMinusSrcAlpha
             ZWrite [_ZWrite]
             HLSLPROGRAM
             #pragma shader_feature _CLIPPING//make unity complie 2 shader with and without _CLIPPING define

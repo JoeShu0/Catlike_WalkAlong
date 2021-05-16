@@ -10,7 +10,6 @@ partial class CameraRender
     partial void DrawGizmosBeforeFX();
     partial void DrawGizmosAfterFX();
 
-
 #if UNITY_EDITOR
 
     string SampleName { get; set; }

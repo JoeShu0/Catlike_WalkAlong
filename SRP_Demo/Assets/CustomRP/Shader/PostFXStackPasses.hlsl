@@ -26,6 +26,9 @@ TEXTURE2D(_ColorGradingLUT);
 float4 _ColorGradingLUTParameters;
 bool _ColorGradingLUTInLogC;
 
+//percamera blend option
+float _FinalSrcBlend, _FinalDstBlend;
+
 float4 GetSourceTexelSize()
 {
 	return _PostFXSource_TexelSize;
@@ -144,9 +147,10 @@ float4 BloomAddPassFragment(Varyings input) : SV_TARGET
 	{
 		lowRes = GetSource(input.screenUV).rgb;
 	}
-		
-	float3 highRes = GetSource2(input.screenUV).rgb;
-	return float4(lowRes * _BloomIntensity + highRes, 1.0);
+	
+	//preserve Alpha after bloom
+	float4 highRes = GetSource2(input.screenUV);
+	return float4(lowRes * _BloomIntensity + highRes.rgb, highRes.a);
 }
 
 float4 BloomPrefilterPassFragment(Varyings input) : SV_TARGET
@@ -212,9 +216,10 @@ float4 BloomScatterFinalPassFragment(Varyings input) : SV_TARGET
 		lowRes = GetSource(input.screenUV).rgb;
 	}
 
-	float3 highRes = GetSource2(input.screenUV).rgb;
-	lowRes += highRes - ApplyBloomThreshold(highRes);
-	return float4(lerp(highRes, lowRes, _BloomIntensity), 1.0);
+	//preserve Alpha after bloom
+	float4 highRes = GetSource2(input.screenUV);
+	lowRes += highRes.rgb - ApplyBloomThreshold(highRes.rgb);
+	return float4(lerp(highRes.rgb, lowRes, _BloomIntensity), highRes.a);
 }
 
 //Color grading
@@ -225,7 +230,7 @@ float Luminance (float3 color, bool useACES) {
 float3 ColorGradePostExposure(float3 color)
 {
 	color = LinearToLogC(color);
-	color = (color - ACEScc_MIDGRAY) * _ColorAdjustments.y + ACEScc_MIDGRAY;
+	color = (color - ACEScc_MIDGRAY) * _ColorAdjustments.x + ACEScc_MIDGRAY;
 	color = LogCToLinear(color);
 	return color;
 }

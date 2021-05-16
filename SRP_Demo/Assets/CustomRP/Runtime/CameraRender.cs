@@ -21,7 +21,8 @@ public partial class CameraRender
     static int frameBufferId = Shader.PropertyToID("_CameraFrameBuffer");
 
     bool useHDR;
-
+    
+    static CameraSettings defaultCameraSettings = new CameraSettings();
     
 
 
@@ -32,6 +33,16 @@ public partial class CameraRender
     {
         this.context = IN_context;
         this.camera = IN_camera;
+
+        //setup custom camera settings
+        //for per camera blend, PostFX settings
+        var crpCamera = camera.GetComponent<CustomRenderPipelineCamera>();
+        CameraSettings cameraSettings = crpCamera ? crpCamera.Settings : defaultCameraSettings;
+        if (cameraSettings.overridePostFX)
+        {
+            //override PostFX option for each cam
+            postFXSettings = cameraSettings.postFXSettings;
+        }
 
         //change buffer name to he camera name
         PrepareBuffer();
@@ -51,7 +62,7 @@ public partial class CameraRender
         lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject);
 
         //setup postFX
-        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode);
 
         buffer.EndSample(SampleName);
 

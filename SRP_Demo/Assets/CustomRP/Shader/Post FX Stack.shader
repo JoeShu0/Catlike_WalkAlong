@@ -135,6 +135,11 @@
         {
             Name "Final"
 
+            //make PostFX produce final image with AlphaBlend
+            //Can be used for MultiCam blend,support percamera blend mode
+            //BLend One OneMinusSrcAlpha
+            Blend [_FinalSrcBlend] [_FinalDstBlend]
+
             HLSLPROGRAM
                 #pragma target 3.5
                 #pragma vertex DefaultPassVertex

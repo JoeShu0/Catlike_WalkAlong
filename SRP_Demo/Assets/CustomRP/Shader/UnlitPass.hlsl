@@ -50,7 +50,7 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 #if defined(_CLIPPING)
 	clip(Color.a - GetCutoff(config));
 #endif
-	return Color;
+	return float4(Color.rgb, GetFinalAlpha(Color.a));
 }
 
 #endif

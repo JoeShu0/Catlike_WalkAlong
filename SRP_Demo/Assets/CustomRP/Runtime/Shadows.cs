@@ -379,8 +379,11 @@ public class Shadows
     void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = ShadowedDirectionalLights[index];
+
         //create a shadowdrawsetting based on the light index
-        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex);
+        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex)
+        { useRenderingLayerMaskTest = true};//make shadow effcted by rendering layer mask
+
         //take into count that each light will render max 4 cascades
         int cascadeCount = shadowSettings.directional.cascadeCount;
         int tileOffset = index * cascadeCount;
@@ -434,7 +437,9 @@ public class Shadows
     {
         ShadowedOtherLight light = shadowedOtherLights[index];
         //create a shadowdrawsetting based on the light index
-        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex);
+        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex)
+        { useRenderingLayerMaskTest = true };//make shadow effcted by rendering layer mask
+
         //get matrcies
         cullingResults.ComputeSpotShadowMatricesAndCullingPrimitives(
             light.visibleLightIndex, out Matrix4x4 viewMatrix,
@@ -473,7 +478,9 @@ public class Shadows
         float tileScale = 1f / split;
 
         //create a shadowdrawsetting based on the light index
-        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex);
+        var shadowDSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex)
+        { useRenderingLayerMaskTest = true };//make shadow effcted by rendering layer mask
+
         //FOV bias to extend fov for a bit to get rid of seams 
         float fovBias = Mathf.Atan(1f + bias + filterSize) * Mathf.Rad2Deg * 2f - 90f;
         

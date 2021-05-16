@@ -58,7 +58,8 @@
                 "LightMode" = "CustomLit"//indicate we are using custom lighting model
             }
             
-            Blend [_SrcBlend] [_DstBlend]
+            //for Alpha blend type We will use One OneMinusSrcAlpha
+            Blend [_SrcBlend] [_DstBlend], One OneMinusSrcAlpha
             ZWrite [_ZWrite]
             HLSLPROGRAM
             #pragma target 3.5

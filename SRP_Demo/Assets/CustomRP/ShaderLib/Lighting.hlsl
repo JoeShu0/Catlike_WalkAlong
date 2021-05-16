@@ -12,6 +12,12 @@ float3 GetLighting(Surface surface, BRDF brdf, Light light)
 	return IncomingLight(surface, light) * DirectBRDF(surface, brdf, light);
 }
 
+bool RenderingLayerMaskOverlap(Surface surface, Light light)
+{
+	//bitwise operation for mask AND.
+	return (surface.renderingLayerMask & light.renderingLayerMask) != 0;
+}
+
 float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi)
 {
 	//Get the per-pixel shadow data
@@ -24,7 +30,10 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi)
 	for (int i = 0; i < GetDirectionalLightCount(); i++)
 	{
 		Light light = GetDirectionalLight(i, surfaceWS, shadowData);
-		color += GetLighting(surfaceWS, brdf, light);
+		if(RenderingLayerMaskOverlap(surfaceWS, light))
+		{
+			color += GetLighting(surfaceWS, brdf, light);
+		}
 	}
 
 	//loop for other lights
@@ -33,18 +42,26 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi)
 		{
 			int lightIndex = unity_LightIndices[(uint)j/4][(uint)j%4];
 			Light light = GetOtherLight(lightIndex, surfaceWS, shadowData);
-			color += GetLighting(surfaceWS, brdf, light);
+			if(RenderingLayerMaskOverlap(surfaceWS, light))
+			{
+				color += GetLighting(surfaceWS, brdf, light);
+			}
 		}
 	#else
 		for (int j = 0; j < GetOtherLightCount(); j++)
 		{
 			Light light = GetOtherLight(j, surfaceWS, shadowData);
+			if(RenderingLayerMaskOverlap(surfaceWS, light))
+			{
 			color += GetLighting(surfaceWS, brdf, light);
+			}
 			//color += light.direction;
 		}
 	#endif
 
 	return color;
 }
+
+
 
 #endif
