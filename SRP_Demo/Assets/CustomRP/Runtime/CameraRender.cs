@@ -59,7 +59,8 @@ public partial class CameraRender
         ExecuteBuffer();
         //get transfer DirLight data to GPU
         //Setup shadow RT and shadow rendering
-        lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject);
+        lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject,
+            cameraSettings.maskLights ? cameraSettings.RenderingLayerMask : -1);
 
         //setup postFX
         postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode);
@@ -68,7 +69,7 @@ public partial class CameraRender
 
         //Setup rendertarget for normal boject rendering
         Setup();
-        DrawVisibleGeometry(useDynameicBatching, useGPUInstancing, useLightPerObject);
+        DrawVisibleGeometry(useDynameicBatching, useGPUInstancing, useLightPerObject, cameraSettings.RenderingLayerMask);
 
         //this makes the Legacy shader draw upon the tranparent object
         //makes it wired, but they are not supported who cares~
@@ -126,7 +127,8 @@ public partial class CameraRender
         
     }
 
-    void DrawVisibleGeometry(bool useDynameicBatching, bool useGPUInstancing, bool useLightPerObject)
+    void DrawVisibleGeometry(bool useDynameicBatching, bool useGPUInstancing, bool useLightPerObject,
+        int renderingLayerMask)
     {
         //per Object light data stuff
         PerObjectData lightPerObjectFlags = useLightPerObject ?
@@ -151,7 +153,9 @@ public partial class CameraRender
         };
         drawingSettings.SetShaderPassName(1, LitShaderTadId);
 
-        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
+        //filter object queue as well as RenderingLayerMask
+        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque, renderingLayerMask:(uint)renderingLayerMask);
+
         context.DrawRenderers(
             cullingResults, ref drawingSettings, ref filteringSettings);
 

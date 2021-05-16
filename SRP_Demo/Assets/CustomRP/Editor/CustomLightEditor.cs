@@ -10,7 +10,10 @@ public class CustomLightEditor : LightEditor
     {
         base.OnInspectorGUI();
 
-        DrawRenderingLayerMask();
+        //DrawRenderingLayerMask();
+        RenderingLayerMaskDrawer.Draw(
+            settings.renderingLayerMask, renderingLayerMaskLabel    
+        );
 
         if (!settings.lightType.hasMultipleDifferentValues &&
             (LightType)settings.lightType.enumValueIndex == LightType.Spot

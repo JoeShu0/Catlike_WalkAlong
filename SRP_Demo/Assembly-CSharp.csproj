@@ -79,6 +79,7 @@
     <Compile Include="Assets\CustomRP\Runtime\PostFXStack.Editor.cs" />
     <Compile Include="Assets\CustomRP\Runtime\PostFXStack.cs" />
     <Compile Include="Assets\CustomRP\Runtime\ReinterpretExtensions.cs" />
+    <Compile Include="Assets\CustomRP\Runtime\RenderingLayerMaskFieldAttribute.cs" />
     <Compile Include="Assets\CustomRP\Runtime\ShadowSettings.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Shadows.cs" />
     <None Include="Assets\CustomRP\Shader\Post FX Stack.shader" />

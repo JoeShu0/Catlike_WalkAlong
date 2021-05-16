@@ -4421,7 +4421,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1025480184}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.72, y: 5.83, z: 11.51}
+  m_LocalPosition: {x: -7.59, y: 5.83, z: 0.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 595295567}
@@ -5380,6 +5380,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings:
+    RenderingLayerMask: 2
+    maskLights: 1
     overridePostFX: 0
     postFXSettings: {fileID: 11400000, guid: e2bc9218ca5a70741afde7740e8a5e7c, type: 2}
     finalBlendMode:
@@ -5695,6 +5697,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings:
+    RenderingLayerMask: -1
+    maskLights: 0
     overridePostFX: 0
     postFXSettings: {fileID: 0}
     finalBlendMode:
@@ -6164,7 +6168,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1537226933}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.72, y: 5.83, z: 9.98}
+  m_LocalPosition: {x: -9.18, y: 5.83, z: -0.47}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 595295567}
