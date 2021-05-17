@@ -7,9 +7,9 @@
 
 TEXTURE2D(_PostFXSource);
 TEXTURE2D(_PostFXSource2);
-SAMPLER(sampler_Linear_clamp);
+//SAMPLER(sampler_Linear_clamp);//sampler is in common.hlsl
 
-float _ProjectionParams;
+//float _ProjectionParams;
 float4 _PostFXSource_TexelSize;
 bool _BloomBocubicUpsampling;
 float4 _BloomThreshold;
@@ -37,19 +37,19 @@ float4 GetSourceTexelSize()
 float4 GetSource(float2 screenUV)
 {
 	//we don't have mip for this, use LOD to save some perf
-	return SAMPLE_TEXTURE2D_LOD(_PostFXSource, sampler_Linear_clamp, screenUV, 0);
+	return SAMPLE_TEXTURE2D_LOD(_PostFXSource, sampler_linear_clamp, screenUV, 0);
 }
 
 float4 GetSource2(float2 screenUV)
 {
 	//we don't have mip for this, use LOD to save some perf
-	return SAMPLE_TEXTURE2D_LOD(_PostFXSource2, sampler_Linear_clamp, screenUV, 0);
+	return SAMPLE_TEXTURE2D_LOD(_PostFXSource2, sampler_linear_clamp, screenUV, 0);
 }
 
 float4 GetSourceBicubic(float2 screenUV)
 {
 	return SampleTexture2DBicubic(
-		TEXTURE2D_ARGS(_PostFXSource, sampler_Linear_clamp), screenUV,
+		TEXTURE2D_ARGS(_PostFXSource, sampler_linear_clamp), screenUV,
 		_PostFXSource_TexelSize.zwxy , 1.0, 0.0
 	);
 }
@@ -373,7 +373,7 @@ float4 ColorGradingACESPassFragment(Varyings input) : SV_TARGET
 float3 ApplyColorGradingLUT(float3 color)
 {
 	color = ApplyLut2D(
-		TEXTURE2D_ARGS(_ColorGradingLUT, sampler_Linear_clamp),
+		TEXTURE2D_ARGS(_ColorGradingLUT, sampler_linear_clamp),
 		saturate(_ColorGradingLUTInLogC ? LinearToLogC(color) : color),
 		_ColorGradingLUTParameters.xyz
 	);

@@ -20,7 +20,7 @@ struct Attributes
 
 struct Varyings
 {
-	float4 positionCS : SV_POSITION;
+	float4 positionCS_SS : SV_POSITION;
 	float2 baseUV : VAR_BASE_UV;
 	float2 detailUV : VAR_DETAIL_UV;
 	float3 normalWS : VAR_NORMAL;
@@ -51,7 +51,7 @@ Varyings LitPassVertex(Attributes input)
 	#endif
 
 	output.positionWS = TransformObjectToWorld(input.positionOS);
-	output.positionCS = TransformWorldToHClip(output.positionWS);
+	output.positionCS_SS = TransformWorldToHClip(output.positionWS);
 
 	//transfer normal
 	output.normalWS = TransformObjectToWorldNormal(input.normalOS);
@@ -69,11 +69,8 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	//Setup the instance ID for Input
 	UNITY_SETUP_INSTANCE_ID(input);
 
-	//LOD fade, the fade factor is in x com of unity_LODFade
-	ClipLOD(input.positionCS.xy, unity_LODFade.x);
-	
 	//use the new packed config instead of UV
-	InputConfig config = GetInputConfig(input.baseUV, input.detailUV);
+	InputConfig config = GetInputConfig(input.positionCS_SS, input.baseUV, input.detailUV);
 	#if defined(_MASK_MAP)
 		config.useMask = true;
 	#endif
@@ -81,6 +78,10 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 		config.detailUV = input.detailUV;
 		config.useDetail = true;
 	#endif
+
+	//LOD fade, the fade factor is in x com of unity_LODFade
+	ClipLOD(config.fragment, unity_LODFade.x);
+
 	//get the basemap * basecolor
 	float4 base = GetBase(config);
 	
@@ -105,7 +106,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.fresnelStrength = GetFresnel(config);
 	surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
 	surface.depth = -TransformWorldToView(input.positionWS).z;
-	surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
+	surface.dither = InterleavedGradientNoise(config.fragment.positionSS, 0);
 	surface.renderingLayerMask = asuint(unity_RenderingLayer.x);// treat float as uint
 
 #if defined(_PREMULTIPLY_ALPHA)

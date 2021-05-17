@@ -99,6 +99,7 @@
     <None Include="Assets\CustomRP\ShaderLib\Light.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\UnityInput.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\GI.hlsl" />
+    <None Include="Assets\CustomRP\ShaderLib\Fragment.hlsl" />
     <None Include="Assets\CustomRP\Shader\UnlitInput.hlsl" />
     <None Include="Assets\CustomRP\Shader\UICustomBlending.shader" />
     <None Include="Assets\CustomRP\ShaderLib\BRDF.hlsl" />
