@@ -19,7 +19,7 @@ struct InputConfig {
 	float2 baseUV;
 };
 
-InputConfig GetInputConfig (float2 baseUV) {
+InputConfig GetInputConfig (float2 baseUV, float2 detailUV = 0.0) {
 	InputConfig c;
 	c.baseUV = baseUV;
 	return c;
@@ -32,7 +32,7 @@ float2 TransformBaseUV(float2 baseUV)
 	return baseUV * baseST.xy + baseST.zw;
 }
 
-float2 TransformDetailUV (InputConfig c) {
+float2 TransformDetailUV (float2 baseUV) {
 	return 0.0;
 }
 

@@ -1,4 +1,4 @@
-﻿Shader "Custom_RP/Unlit"
+﻿Shader "Custom_RP/Particles/Unlit"
 {
     Properties
     {
@@ -50,23 +50,6 @@
             #pragma vertex ShadowCasterPassVertex
             #pragma fragment ShadowCasterPassFragment
             #include "ShadowCasterPass.hlsl"
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Tags
-            {
-                "LightMode" = "Meta"//this pass is used for GI caculation
-            }
-
-            Cull Off
-
-            HLSLPROGRAM
-            #pragma target 3.5
-            #pragma vertex MetaPassVertex
-            #pragma fragment MetaPassFragment
-            #include "MetaPass.hlsl"
             ENDHLSL
         }
     }

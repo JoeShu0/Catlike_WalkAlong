@@ -82,6 +82,7 @@
     <Compile Include="Assets\CustomRP\Runtime\RenderingLayerMaskFieldAttribute.cs" />
     <Compile Include="Assets\CustomRP\Runtime\ShadowSettings.cs" />
     <Compile Include="Assets\CustomRP\Runtime\Shadows.cs" />
+    <None Include="Assets\CustomRP\Shader\Particles_Unlit.shader" />
     <None Include="Assets\CustomRP\Shader\Post FX Stack.shader" />
     <None Include="Assets\CustomRP\Shader\LitPass.hlsl" />
     <None Include="Assets\CustomRP\ShaderLib\Common.hlsl" />
