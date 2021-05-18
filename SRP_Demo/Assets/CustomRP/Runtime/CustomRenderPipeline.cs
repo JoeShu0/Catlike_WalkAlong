@@ -3,8 +3,8 @@ using UnityEngine.Rendering;
 
 public partial class CustomRenderPipeline : RenderPipeline
 {
-    CameraRender render = new CameraRender();
-    bool allowHDR;
+    CameraRenderer renderer;// = new CameraRenderer(shader);
+    CameraBufferSettings cameraBufferSettings;
     bool useDynameicBatching, useGPUInstancing ,useLightPerObject;
 
     ShadowSettings shadowsetting;
@@ -14,14 +14,15 @@ public partial class CustomRenderPipeline : RenderPipeline
 
 
     public CustomRenderPipeline(
-        bool allowHDR,
+        CameraBufferSettings cameraBufferSettings,
         bool useDynameicBatching, 
         bool useGPUInstancing, 
         bool useSRPBatcher,
         bool useLightPerObject,
         ShadowSettings shadowsetting,
         PostFXSettings postFXSettings,
-        int colorLUTResolution)
+        int colorLUTResolution,
+        Shader cameraRendererShader)
     {
         this.useDynameicBatching = useDynameicBatching;
         this.useGPUInstancing = useGPUInstancing;
@@ -30,8 +31,9 @@ public partial class CustomRenderPipeline : RenderPipeline
         this.shadowsetting = shadowsetting;
         this.useLightPerObject = useLightPerObject;
         this.postFXSettings = postFXSettings;
-        this.allowHDR = allowHDR;
+        this.cameraBufferSettings = cameraBufferSettings;
         this.colorLUTResolution = colorLUTResolution;
+        renderer = new CameraRenderer(cameraRendererShader);
         //
         InitializeForEditor();
     }
@@ -40,10 +42,17 @@ public partial class CustomRenderPipeline : RenderPipeline
     {
         foreach(Camera camera in cameras)
         {
-            render.Render(context, camera, allowHDR,
+            renderer.Render(context, camera, cameraBufferSettings,
                 useDynameicBatching, useGPUInstancing, 
                 useLightPerObject, shadowsetting,
                 postFXSettings, colorLUTResolution);
         }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        DisposeForEditor();
+        renderer.Dispose();
     }
 }

@@ -1,0 +1,7 @@
+﻿using System;
+[System.Serializable]
+public struct CameraBufferSettings
+{
+    public bool allowHDR;
+    public bool copyDepth, copyDepthReflection;
+}

@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: CRP_Unlit_Particles
   m_Shader: {fileID: 4800000, guid: d0ad4c1a8e38be74090927264ac2ab0a, type: 3}
-  m_ShaderKeywords: _FLIPBOOK_BLENDING _NEAR_FADE _SHADOWS_DITHER _SHADOWS_ON _VERTEX_COLORS
+  m_ShaderKeywords: _FLIPBOOK_BLENDING _NEAR_FADE _SHADOWS_DITHER _SHADOWS_ON _SOFT_PARTICLES
+    _VERTEX_COLORS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -72,12 +73,15 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _NearFade: 1
-    - _NearFadeDistance: 3.09
+    - _NearFadeDistance: 1
     - _NearFadeRange: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Shadows: 2
     - _SmoothnessTextureChannel: 0
+    - _SoftParticles: 1
+    - _SoftParticlesDistance: 0.3
+    - _SoftParticlesRanges: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 5
     - _UVSec: 0

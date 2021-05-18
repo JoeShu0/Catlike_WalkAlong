@@ -14,7 +14,11 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     ShadowSettings shadows = default;
 
     [SerializeField]
-    bool allowHDR = true;
+    //bool allowHDR = true;
+    CameraBufferSettings cameraBuffer = new CameraBufferSettings
+    {
+        allowHDR = true
+    };
 
     [SerializeField]
     PostFXSettings postFXSettings = default;
@@ -22,12 +26,16 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     public enum ColorLUTResolution { _16 = 16, _32 = 32, _64 = 64}
     [SerializeField]
     ColorLUTResolution colorLUTResolution = ColorLUTResolution._32;
+    [SerializeField]
+    Shader cameraRendererShader = default;
+
     protected override RenderPipeline CreatePipeline()
     {
-        return new CustomRenderPipeline(allowHDR,
+        return new CustomRenderPipeline(cameraBuffer,
             useDynameicBatching, useGPUInstancing, 
             useSRPBatcher, useLightPerObject, 
-            shadows, postFXSettings, (int)colorLUTResolution);
+            shadows, postFXSettings, (int)colorLUTResolution,
+            cameraRendererShader);
         //throw new System.NotImplementedException();
     }
 }

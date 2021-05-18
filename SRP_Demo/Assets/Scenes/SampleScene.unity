@@ -6413,7 +6413,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 289054847}
   m_LocalRotation: {x: -0.4332896, y: 0.55880237, z: -0.55880255, w: 0.43328947}
-  m_LocalPosition: {x: -15.82, y: 0.34, z: -10.18}
+  m_LocalPosition: {x: -15.82, y: 1.64, z: -10.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -6547,7 +6547,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &326821067
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6564,7 +6564,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -101.3, y: -105.6}
+  m_AnchoredPosition: {x: -101.3, y: 147.9}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &326821068
@@ -6721,7 +6721,7 @@ ReflectionProbe:
   m_Enabled: 1
   serializedVersion: 2
   m_Type: 0
-  m_Mode: 1
+  m_Mode: 0
   m_RefreshMode: 0
   m_TimeSlicingMode: 0
   m_Resolution: 128
@@ -10235,6 +10235,7 @@ MonoBehaviour:
     finalBlendMode:
       source: 1
       destination: 10
+    copyDepth: 1
 --- !u!1 &1253659908
 GameObject:
   m_ObjectHideFlags: 0
@@ -10552,6 +10553,7 @@ MonoBehaviour:
     finalBlendMode:
       source: 1
       destination: 0
+    copyDepth: 1
 --- !u!81 &1368397737
 AudioListener:
   m_ObjectHideFlags: 0
@@ -10610,13 +10612,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368397735}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.8, y: 1.1, z: -24.15}
+  m_LocalRotation: {x: 0.1478088, y: -0, z: -0, w: 0.989016}
+  m_LocalPosition: {x: -5.8, y: 5.07, z: -24.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 17, y: 0, z: 0}
 --- !u!1 &1371540193
 GameObject:
   m_ObjectHideFlags: 0
@@ -13181,7 +13183,7 @@ ReflectionProbe:
   m_Enabled: 1
   serializedVersion: 2
   m_Type: 0
-  m_Mode: 1
+  m_Mode: 0
   m_RefreshMode: 0
   m_TimeSlicingMode: 0
   m_Resolution: 128
@@ -13399,7 +13401,7 @@ ReflectionProbe:
   m_Enabled: 1
   serializedVersion: 2
   m_Type: 0
-  m_Mode: 1
+  m_Mode: 0
   m_RefreshMode: 0
   m_TimeSlicingMode: 0
   m_Resolution: 128

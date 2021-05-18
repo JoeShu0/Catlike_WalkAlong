@@ -64,7 +64,8 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 	//use the new packed config instead of UV
 	InputConfig config = GetInputConfig(input.positionCS_SS, input.baseUV);
 
-
+	//return float4(config.fragment.bufferDepth.xxx / 20.0, 1.0);
+	//use vertex color
 	#if defined(_VERTEX_COLORS)
 		config.color = input.color;
 	#endif
@@ -73,8 +74,13 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 		config.flipbookUVB = input.flipbookUVB;
 		config.flipbookBlending = true;
 	#endif
+	//near fade on camera near clip
 	#if defined(_NEAR_FADE)
 		config.nearFade = true;
+	#endif
+	//near fade on object (depth buffer fade)
+	#if defined(_SOFT_PARTICLES)
+		config.softParticles = true;
 	#endif
 
 	//get the basemap * basecolor

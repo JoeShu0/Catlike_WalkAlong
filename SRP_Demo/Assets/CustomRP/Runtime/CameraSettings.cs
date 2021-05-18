@@ -24,4 +24,6 @@ public class CameraSettings
         source = BlendMode.One,
         destination = BlendMode.Zero
     };
+
+    public bool copyDepth = true;
 }

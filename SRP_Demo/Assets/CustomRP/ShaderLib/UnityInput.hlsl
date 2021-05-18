@@ -15,6 +15,8 @@ CBUFFER_START(UnityPerDraw)
 
 	float4 unity_OrthoParams;
 	float4 _ProjectionParams;
+	float4 _ScreenParams;//xy is the screen dimensions
+	float4 _ZBufferParams;//conversion factors for depth raw to linear
 
 	//object layer mask
 	float4 unity_RenderingLayer;
