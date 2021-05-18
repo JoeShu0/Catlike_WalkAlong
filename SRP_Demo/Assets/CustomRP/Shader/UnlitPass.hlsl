@@ -64,7 +64,9 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 	//use the new packed config instead of UV
 	InputConfig config = GetInputConfig(input.positionCS_SS, input.baseUV);
 
+	//return GetBufferColor(config.fragment, 0.05);
 	//return float4(config.fragment.bufferDepth.xxx / 20.0, 1.0);
+
 	//use vertex color
 	#if defined(_VERTEX_COLORS)
 		config.color = input.color;

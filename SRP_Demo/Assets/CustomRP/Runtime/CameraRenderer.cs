@@ -21,13 +21,17 @@ public partial class CameraRenderer
     //static int frameBufferId = Shader.PropertyToID("_CameraFrameBuffer");
     static int colorAttachmentId = Shader.PropertyToID("_CameraColorAttachment");
     static int depthAttachmentId = Shader.PropertyToID("_CameraDelpthAttachment");
+    static int colorTextureId = Shader.PropertyToID("_CameraColorTexture");
     static int depthTextureId = Shader.PropertyToID("_CameraDepthTexture");
     static int sourceTextureId = Shader.PropertyToID("_SourceTexture");
+    
 
 
     bool useHDR;
-    bool useDepthTexture, useIntermediateBuffer;
-    
+    bool useColorTexture, useDepthTexture, useIntermediateBuffer;
+    //In case webgl not supporting copy textures
+    static bool copyTextureSupported = SystemInfo.copyTextureSupport > CopyTextureSupport.None;
+
     static CameraSettings defaultCameraSettings = new CameraSettings();
 
     Material material;
@@ -64,10 +68,12 @@ public partial class CameraRenderer
         if (camera.cameraType == CameraType.Reflection)
         {
             useDepthTexture = cameraBufferSettings.copyDepthReflection;
+            useColorTexture = cameraBufferSettings.copyColorReflection;
         }
         else 
         {
             useDepthTexture = cameraBufferSettings.copyDepth && cameraSettings.copyDepth;
+            useColorTexture = cameraBufferSettings.copyColor && cameraSettings.copyColor;
         }
 
         if (cameraSettings.overridePostFX)
@@ -138,7 +144,7 @@ public partial class CameraRenderer
         CameraClearFlags flags = camera.clearFlags;
 
         //make sure we have a depth texture 
-        useIntermediateBuffer = useDepthTexture || postFXStack.IsActive;
+        useIntermediateBuffer = useDepthTexture || postFXStack.IsActive || useColorTexture;
 
         //setup camera frame buffer for post FX
         //Without this, the content is directly draw to camera target
@@ -172,6 +178,7 @@ public partial class CameraRenderer
         //Set the depthtexture to missing, anything rendered after and before CopyAttachments()
         //will have invalid depth texture(ALL opaque objects and skybox)
         buffer.SetGlobalTexture(depthTextureId, missingTexture);
+        buffer.SetGlobalTexture(colorTextureId, missingTexture);
 
         //Excute the Profile injection
         ExecuteBuffer();
@@ -216,10 +223,13 @@ public partial class CameraRenderer
         //we are drawing in order like opaque->skybox->tranparent
         context.DrawSkybox(camera);
 
-        //copy the depth of all opaque and sky
-        //so if the opaque object tries to sample the _CameraDepthTexture, result will be invalid
-        CopyAttachments();
-
+        //copy the depth and color of all opaque and sky
+        //so if the opaque object tries to sample the _CameraDepthTexture or _CameraColorTexture, 
+        //result will be invalid
+        if (useColorTexture || useDepthTexture)
+        {
+            CopyAttachments();
+        }
         //draw transparent
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
@@ -269,6 +279,10 @@ public partial class CameraRenderer
         {
             buffer.ReleaseTemporaryRT(colorAttachmentId);
             buffer.ReleaseTemporaryRT(depthAttachmentId);
+            if (useColorTexture)
+            {
+                buffer.ReleaseTemporaryRT(colorTextureId);
+            }
             if (useDepthTexture)
             {
                 buffer.ReleaseTemporaryRT(depthTextureId);
@@ -284,21 +298,53 @@ public partial class CameraRenderer
 
     void CopyAttachments()
     {
+        if (useColorTexture)
+        {
+            buffer.GetTemporaryRT(
+                colorTextureId, camera.pixelWidth, camera.pixelHeight,
+                0, FilterMode.Bilinear, useHDR ?
+                    RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default
+            );
+            if (copyTextureSupported)
+            {
+                buffer.CopyTexture(colorAttachmentId, colorTextureId);
+            }
+            else
+            {
+                Draw(colorAttachmentId, colorTextureId);
+            }
+        }
         if (useDepthTexture)
         {
             buffer.GetTemporaryRT(
                 depthTextureId, camera.pixelWidth, camera.pixelHeight,
                 32, FilterMode.Point, RenderTextureFormat.Depth);
-            buffer.CopyTexture(depthAttachmentId, depthTextureId);
-            ExecuteBuffer();
+            if (copyTextureSupported)
+            {
+                buffer.CopyTexture(depthAttachmentId, depthTextureId);
+            }
+            else
+            {
+                Draw(depthAttachmentId, depthTextureId, true);//copying depth uses different pass
+            }
+            
         }
+        if (!copyTextureSupported)
+        {
+            //Draw set the rendertarget, we have to set it back otherwise following renders will go to the wrong buffer
+            buffer.SetRenderTarget(colorAttachmentId,
+            RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store,
+            depthAttachmentId,
+            RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+        }
+        ExecuteBuffer();
     }
 
-    void Draw(RenderTargetIdentifier from, RenderTargetIdentifier to)
+    void Draw(RenderTargetIdentifier from, RenderTargetIdentifier to, bool isDepth = false)
     {
         buffer.SetGlobalTexture(sourceTextureId, from);
         buffer.SetRenderTarget(to,
             RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-        buffer.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3);
+        buffer.DrawProcedural(Matrix4x4.identity, material, isDepth ? 1 : 0, MeshTopology.Triangles, 3);
     }
 }

@@ -29,6 +29,11 @@ partial class CameraRenderer
     {
         if (Handles.ShouldRenderGizmos())
         {
+            if (useIntermediateBuffer)//If depth is available fade gizmo with depth
+            {
+                Draw(depthAttachmentId, BuiltinRenderTextureType.CameraTarget, true);
+                ExecuteBuffer();
+            }
             context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
             //context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
         }

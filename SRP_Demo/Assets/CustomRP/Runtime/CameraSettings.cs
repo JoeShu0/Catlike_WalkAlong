@@ -25,5 +25,5 @@ public class CameraSettings
         destination = BlendMode.Zero
     };
 
-    public bool copyDepth = true;
+    public bool copyColor = true, copyDepth = true;
 }
