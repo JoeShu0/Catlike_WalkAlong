@@ -6413,7 +6413,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 289054847}
   m_LocalRotation: {x: -0.4332896, y: 0.55880237, z: -0.55880255, w: 0.43328947}
-  m_LocalPosition: {x: -15.82, y: 1.64, z: -10.18}
+  m_LocalPosition: {x: -15.82, y: 3.76, z: -10.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -10149,7 +10149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &1227152720
 AudioListener:
   m_ObjectHideFlags: 0
@@ -10208,13 +10208,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1227152719}
-  m_LocalRotation: {x: 0.05367491, y: 0.9428394, z: -0.2705052, w: 0.18708241}
+  m_LocalRotation: {x: 0.031003956, y: 0.9683518, z: -0.15625037, w: 0.1921447}
   m_LocalPosition: {x: -12.2, y: 11.9, z: 17.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 32.017002, y: 157.554, z: 0}
+  m_LocalEulerAnglesHint: {x: 18.332, y: 157.554, z: 0}
 --- !u!114 &1227152723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10228,7 +10228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings:
-    RenderingLayerMask: 2
+    RenderingLayerMask: 3
     maskLights: 1
     overridePostFX: 0
     postFXSettings: {fileID: 11400000, guid: e2bc9218ca5a70741afde7740e8a5e7c, type: 2}
@@ -10533,7 +10533,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1368397736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12390,7 +12390,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1698102876
 MonoBehaviour:
   m_ObjectHideFlags: 0

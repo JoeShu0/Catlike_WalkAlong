@@ -86,12 +86,19 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 	#endif
 
 	//get the basemap * basecolor
-	float4 Color = GetBase(config);
+	float4 base = GetBase(config);
 
 #if defined(_CLIPPING)
-	clip(Color.a - GetCutoff(config));
+	clip(base.a - GetCutoff(config));
 #endif
-	return float4(Color.rgb, GetFinalAlpha(Color.a));
+	
+#if defined(_DISTORTION)
+	float2 distortion = GetDistortion(config) * base.a;
+	base.rgb = lerp(GetBufferColor(config.fragment, distortion).rgb, base.rgb, 
+		saturate(base.a - GetDistortionBlend(config)));
+#endif
+
+	return float4(base.rgb, GetFinalAlpha(base.a));
 }
 
 #endif

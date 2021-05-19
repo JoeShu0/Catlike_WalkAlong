@@ -1,8 +1,9 @@
-#ifndef CUSTOM_LIT_INPUT_INCLUDED
-#define CUSTOM_LIT_INPUT_INCLUDED
+#ifndef CUSTOM_UNLIT_INPUT_INCLUDED
+#define CUSTOM_UNLIT_INPUT_INCLUDED
 //this file wil be store all the input def and functions for the lit pass
 
 TEXTURE2D(_BaseMap);
+TEXTURE2D(_DistortionMap);
 SAMPLER(sampler_BaseMap);
 
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
@@ -12,10 +13,11 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 	UNITY_DEFINE_INSTANCED_PROP(float, _NearFadeRange)
 	UNITY_DEFINE_INSTANCED_PROP(float, _SoftParticlesDistance)
 	UNITY_DEFINE_INSTANCED_PROP(float, _SoftParticlesRanges)
+	UNITY_DEFINE_INSTANCED_PROP(float, _DistortionStrength)
+	UNITY_DEFINE_INSTANCED_PROP(float, _DistortionBlend)
 	UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
 	UNITY_DEFINE_INSTANCED_PROP(float, _ZWrite)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-// the error assert 0==m_CurrentBuildInBindMask may cased by the GPU instance option os not on in the material
 
 #define INPUT_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
 
@@ -76,6 +78,23 @@ float4 GetBase(InputConfig c)
 	float4 baseColor = INPUT_PROP(_BaseColor);
 	float4 base = baseColor * baseMap * c.color;
 	return base;
+}
+
+float2 GetDistortion(InputConfig c)
+{
+	//return float2(0.0, 0.0);
+	float4 rawMap = SAMPLE_TEXTURE2D(_DistortionMap, sampler_BaseMap, c.baseUV);
+	if (c.flipbookBlending)
+	{
+		rawMap = lerp(rawMap, SAMPLE_TEXTURE2D(_DistortionMap, sampler_BaseMap, c.flipbookUVB.xy),
+			c.flipbookUVB.z);
+	}
+	return DecodeNormal(rawMap, INPUT_PROP(_DistortionStrength)).xy;
+}
+
+float GetDistortionBlend(InputConfig c)
+{
+	return INPUT_PROP(_DistortionBlend);
 }
 
 float4 GetMask (InputConfig c) {

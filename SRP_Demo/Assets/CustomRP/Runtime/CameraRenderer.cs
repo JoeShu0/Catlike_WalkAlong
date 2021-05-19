@@ -24,8 +24,9 @@ public partial class CameraRenderer
     static int colorTextureId = Shader.PropertyToID("_CameraColorTexture");
     static int depthTextureId = Shader.PropertyToID("_CameraDepthTexture");
     static int sourceTextureId = Shader.PropertyToID("_SourceTexture");
-    
 
+    static int srcBlendId = Shader.PropertyToID("_CameraSrcBlend");
+    static int dstBlendId = Shader.PropertyToID("_CameraDstBlend");
 
     bool useHDR;
     bool useColorTexture, useDepthTexture, useIntermediateBuffer;
@@ -124,7 +125,8 @@ public partial class CameraRenderer
         {
             // we need to copy the image from intermediate to final 
             //otherwise nothing goes to camera target, Since PFX is not active 
-            Draw(colorAttachmentId, BuiltinRenderTextureType.CameraTarget);
+            //Draw(colorAttachmentId, BuiltinRenderTextureType.CameraTarget);
+            DrawFinal(cameraSettings.finalBlendMode);
             ExecuteBuffer();
         }
 
@@ -346,5 +348,25 @@ public partial class CameraRenderer
         buffer.SetRenderTarget(to,
             RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.DrawProcedural(Matrix4x4.identity, material, isDepth ? 1 : 0, MeshTopology.Triangles, 3);
+    }
+
+    void DrawFinal(CameraSettings.FinalBlendMode finalBlendMode)
+    {
+        //percamera blend mode
+        buffer.SetGlobalFloat(srcBlendId, (float)finalBlendMode.source);
+        buffer.SetGlobalFloat(dstBlendId, (float)finalBlendMode.destination);
+
+        buffer.SetGlobalTexture(sourceTextureId, colorAttachmentId);
+        buffer.SetRenderTarget(BuiltinRenderTextureType.CameraTarget,
+            // load the previous camer render if MultiCam blend
+            finalBlendMode.destination != BlendMode.Zero ? RenderBufferLoadAction.Load : RenderBufferLoadAction.DontCare,
+            RenderBufferStoreAction.Store);
+        //set the render viewpost to  camera rect
+        buffer.SetViewport(camera.pixelRect);
+        buffer.DrawProcedural(Matrix4x4.identity,
+            material, 0, MeshTopology.Triangles, 3);
+        // set blend to one-zero for following
+        buffer.SetGlobalFloat(srcBlendId, 1f);
+        buffer.SetGlobalFloat(dstBlendId, 0f);
     }
 }

@@ -18,6 +18,10 @@
         [Toggle(_SOFT_PARTICLES)] _SoftParticles("Soft Particles", Float) = 0
         _SoftParticlesDistance("Soft Particles Distance", Range(0.01, 10.0)) = 0
         _SoftParticlesRanges("Soft Particles Range", Range(0.01,10.0)) = 1
+        [Toggle(_DISTORTION)] _Distortion("Distortion", Float) = 0
+        [NoScaleOffset] _DistortionMap("Distortion Vectors", 2D) = "bumb"{}
+        _DistortionStrength("Distortion Strength", Range(0.0, 0.2)) = 0.1
+        _DistortionBlend("Distortion Blend", Range(0.0, 1.0)) = 1
     }
     SubShader
     {
@@ -39,6 +43,7 @@
             #pragma shader_feature _FLIPBOOK_BLENDING //flipbook blending for particles
             #pragma shader_feature _NEAR_FADE//particle fade near camera clip plane
             #pragma shader_feature _SOFT_PARTICLES//particle fade near on object(depth buffer)
+            #pragma shader_feature _DISTORTION//normal map distortion color buffer
             #pragma vertex UnlitPassVertex
             #pragma fragment UnlitPassFragment
             #include "UnlitPass.hlsl"
