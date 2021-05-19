@@ -37,6 +37,8 @@ MonoBehaviour:
     copyDepthReflection: 0
     copyColor: 1
     copyColorReflection: 0
+    renderScale: 1
+    bicubicResampling: 1
   postFXSettings: {fileID: 11400000, guid: 6fdf34521c8e58e4b9307ef4d8e88aeb, type: 2}
   colorLUTResolution: 32
   cameraRendererShader: {fileID: 4800000, guid: dbf4f90b065b67743aed1efe568b12b0,
