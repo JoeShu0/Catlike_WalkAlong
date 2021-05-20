@@ -43,6 +43,7 @@ public partial class CameraRenderer
     Vector2Int bufferSize;
     public const float renderScaleMin = 0.1f, renderScaleMax = 2f;
 
+    
 
     //Constructor
     public CameraRenderer(Shader shader)
@@ -132,11 +133,14 @@ public partial class CameraRenderer
         lighting.Setup(context, cullingResults, shadowSetting, useLightPerObject,
             cameraSettings.maskLights ? cameraSettings.RenderingLayerMask : -1);
 
+        //FXAA is enable per camera
+        cameraBufferSettings.fxaa.enabled = cameraSettings.allowFXAA;
         //setup postFX
         postFXStack.Setup(context, camera, 
-            bufferSize, postFXSettings, useHDR, 
+            bufferSize, postFXSettings, cameraSettings.keepAlpha, useHDR, 
             colorLUTResolution, cameraSettings.finalBlendMode,
-            cameraBufferSettings.bicubicResampling);
+            cameraBufferSettings.bicubicResampling,
+            cameraBufferSettings.fxaa);
 
         buffer.EndSample(SampleName);
 

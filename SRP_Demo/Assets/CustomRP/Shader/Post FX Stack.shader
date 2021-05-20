@@ -133,7 +133,7 @@
         }
         Pass
         {
-            Name "Final"
+            Name "Apply ColorGrading"
 
             //make PostFX produce final image with AlphaBlend
             //Can be used for MultiCam blend,support percamera blend mode
@@ -143,7 +143,17 @@
             HLSLPROGRAM
                 #pragma target 3.5
                 #pragma vertex DefaultPassVertex
-                #pragma fragment FinalPassFragment
+                #pragma fragment ApplyColorgradingPassFragment
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "Apply ColorGrading with Luma"
+
+            HLSLPROGRAM
+                #pragma target 3.5
+                #pragma vertex DefaultPassVertex
+                #pragma fragment ApplyColorgradingWithLumaPassFragment
             ENDHLSL
         }
         Pass {
@@ -157,6 +167,31 @@
 				#pragma fragment FinalPassFragmentRescale
 			ENDHLSL
 		}
+        Pass{
+            Name "FXAA"
+
+            Blend[_FinalSrcBlend][_FinalDstBlend]
+
+            HLSLPROGRAM
+                #pragma target 3.5
+                #pragma vertex DefaultPassVertex
+                #pragma fragment FXAAPassFragment
+                #include "FXAAPass.hlsl"
+            ENDHLSL
+        }
+        Pass{
+                Name "FXAA With Luma"
+
+                Blend[_FinalSrcBlend][_FinalDstBlend]
+
+                HLSLPROGRAM
+                    #pragma target 3.5
+                    #pragma vertex DefaultPassVertex
+                    #pragma fragment FXAAPassFragment
+                    #define FXAA_ALPHA_CONTAINS_LUMA
+                    #include "FXAAPass.hlsl"
+                ENDHLSL
+        }
         
     }
 }

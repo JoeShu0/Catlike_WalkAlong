@@ -8812,6 +8812,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -8884,6 +8885,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 28.230001, y: 110.878006, z: 2.0600002}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cf8e4b96ac3bf842b185a71fc42158a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings:
+    RenderingLayerMask: -1
+    maskLights: 1
+    overridePostFX: 0
+    postFXSettings: {fileID: 0}
+    finalBlendMode:
+      source: 1
+      destination: 0
+    copyColor: 1
+    copyDepth: 1
+    renderScaleMode: 0
+    renderScale: 1
+    allowFXAA: 1
+    keepAlpha: 1
 --- !u!1 &975905232
 GameObject:
   m_ObjectHideFlags: 0
@@ -10149,7 +10176,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &1227152720
 AudioListener:
   m_ObjectHideFlags: 0
@@ -10237,6 +10264,10 @@ MonoBehaviour:
       destination: 10
     copyColor: 1
     copyDepth: 1
+    renderScaleMode: 0
+    renderScale: 1
+    allowFXAA: 0
+    keepAlpha: 0
 --- !u!1 &1253659908
 GameObject:
   m_ObjectHideFlags: 0
@@ -10533,7 +10564,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1368397736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10556,6 +10587,10 @@ MonoBehaviour:
       destination: 0
     copyColor: 1
     copyDepth: 1
+    renderScaleMode: 0
+    renderScale: 1
+    allowFXAA: 0
+    keepAlpha: 0
 --- !u!81 &1368397737
 AudioListener:
   m_ObjectHideFlags: 0
@@ -12390,7 +12425,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1698102876
 MonoBehaviour:
   m_ObjectHideFlags: 0
