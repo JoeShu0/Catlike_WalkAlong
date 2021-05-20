@@ -8910,7 +8910,7 @@ MonoBehaviour:
     renderScaleMode: 0
     renderScale: 1
     allowFXAA: 1
-    keepAlpha: 1
+    keepAlpha: 0
 --- !u!1 &975905232
 GameObject:
   m_ObjectHideFlags: 0

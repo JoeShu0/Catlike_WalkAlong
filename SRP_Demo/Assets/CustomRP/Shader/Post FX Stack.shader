@@ -150,6 +150,8 @@
         {
             Name "Apply ColorGrading with Luma"
 
+            Blend[_FinalSrcBlend][_FinalDstBlend]
+
             HLSLPROGRAM
                 #pragma target 3.5
                 #pragma vertex DefaultPassVertex

@@ -18,7 +18,10 @@ public partial class PostFXStack
     PostFXSettings settings;
     const int maxBloomPyramidLevel = 16;
     int bloomPyramidId;
-    bool useHDR, keepAlpha;
+
+    bool useHDR;
+
+    bool keepAlpha;
 
     int colorLUTResolution;
     public bool IsActive => settings != null;
@@ -91,8 +94,8 @@ public partial class PostFXStack
     public void Setup
         (ScriptableRenderContext context,
         Camera camera, Vector2Int bufferSize,
-        PostFXSettings settings,
-        bool useHDR, bool keepAlpha, int colorLUTResolution,
+        PostFXSettings settings, bool keepAlpha,
+        bool useHDR,  int colorLUTResolution,
         CameraSettings.FinalBlendMode finalBlendMode,
         CameraBufferSettings.BicubicRescalingMode bicubicRescaling,
         CameraBufferSettings.FXAA fxaa)
@@ -359,6 +362,7 @@ public partial class PostFXStack
         buffer.SetGlobalFloat(
             colorGradingLUTInLogId, useHDR && pass!= Pass.ColorGradingNone ? 1f:0f
         );
+        //Debug.Log(useHDR);
         //draw color grading to LUT
         Draw(sourceId, colorGradingLUTId, pass);
 
