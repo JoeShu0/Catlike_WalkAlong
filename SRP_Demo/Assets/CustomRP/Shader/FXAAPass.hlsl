@@ -93,7 +93,7 @@ float GetSubpixelBlendFactor(LumaNeighborhood luma) {
 	filter = abs(filter - luma.m);
 	filter = saturate(filter / luma.range);
 	filter = smoothstep(0, 1, filter);
-	return filter * filter;
+	return filter * filter * _FXAAConfig.z;
 }
 
 float4 FXAAPassFragment(Varyings input) : SV_TARGET
