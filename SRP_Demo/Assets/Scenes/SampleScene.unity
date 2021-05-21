@@ -7240,13 +7240,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 574093836}
-  m_LocalRotation: {x: -0.77236646, y: 0.0009433685, z: -0.5523447, w: 0.31363124}
+  m_LocalRotation: {x: -0.44904062, y: 0.10706171, z: -0.7562065, w: -0.46373707}
   m_LocalPosition: {x: -10.745, y: 6.062, z: -2.409}
   m_LocalScale: {x: -0.059458498, y: -4.5894547, z: -0.059458498}
   m_Children: []
   m_Father: {fileID: 595295567}
   m_RootOrder: 74
-  m_LocalEulerAnglesHint: {x: -28.910002, y: 102.744, z: -156.58101}
+  m_LocalEulerAnglesHint: {x: 35.338, y: 45.300003, z: -227.894}
 --- !u!65 &574093838
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10365,7 +10365,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &1227152720
 AudioListener:
   m_ObjectHideFlags: 0
@@ -10753,7 +10753,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1368397736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12614,7 +12614,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1698102876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13894,13 +13894,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1927240370}
-  m_LocalRotation: {x: -0.67674536, y: 0.37224528, z: -0.3334673, w: 0.54060036}
-  m_LocalPosition: {x: -10.349, y: 6.286, z: -2.499}
-  m_LocalScale: {x: -0.10061, y: -3.6008854, z: -0.10061}
+  m_LocalRotation: {x: -0.6877936, y: 0.37618744, z: -0.32325298, w: 0.5300288}
+  m_LocalPosition: {x: -11.21, y: 7.76, z: -2.57}
+  m_LocalScale: {x: -0.10061, y: -9.0907955, z: -0.4817408}
   m_Children: []
   m_Father: {fileID: 595295567}
   m_RootOrder: 73
-  m_LocalEulerAnglesHint: {x: -28.910002, y: 102.744, z: -99.095}
+  m_LocalEulerAnglesHint: {x: -29.071001, y: 105.200005, z: -100.22201}
 --- !u!65 &1927240372
 BoxCollider:
   m_ObjectHideFlags: 0

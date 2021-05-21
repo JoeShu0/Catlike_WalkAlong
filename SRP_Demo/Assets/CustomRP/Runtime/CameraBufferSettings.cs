@@ -35,6 +35,9 @@ public struct CameraBufferSettings
         //   0.00 - completely off
         [Range(0f, 1f)]
         public float subpixelBlending;//control the blending factor
+
+        public enum Quailty { Low, Medium, High}
+        public Quailty quailty;
     }
     public FXAA fxaa;
 }

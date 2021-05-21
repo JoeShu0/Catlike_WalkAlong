@@ -38,12 +38,13 @@ MonoBehaviour:
     copyColor: 1
     copyColorReflection: 0
     renderScale: 1
-    bicubicResampling: 0
+    bicubicResampling: 1
     fxaa:
       enabled: 1
       fixedThreshold: 0.0312
       relativeThreshold: 0.063
       subpixelBlending: 0.75
+      quailty: 2
   postFXSettings: {fileID: 11400000, guid: 6fdf34521c8e58e4b9307ef4d8e88aeb, type: 2}
   colorLUTResolution: 32
   cameraRendererShader: {fileID: 4800000, guid: dbf4f90b065b67743aed1efe568b12b0,

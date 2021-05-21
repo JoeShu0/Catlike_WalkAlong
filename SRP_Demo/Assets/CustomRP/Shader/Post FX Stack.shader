@@ -178,21 +178,24 @@
                 #pragma target 3.5
                 #pragma vertex DefaultPassVertex
                 #pragma fragment FXAAPassFragment
+                #pragma multi_compile _ FXAA_QUALITY_MEDIUM FXAA_QUALITY_LOW
                 #include "FXAAPass.hlsl"
             ENDHLSL
         }
         Pass{
-                Name "FXAA With Luma"
+            Name "FXAA With Luma"
 
-                Blend[_FinalSrcBlend][_FinalDstBlend]
+            Blend[_FinalSrcBlend][_FinalDstBlend]
 
-                HLSLPROGRAM
-                    #pragma target 3.5
-                    #pragma vertex DefaultPassVertex
-                    #pragma fragment FXAAPassFragment
-                    #define FXAA_ALPHA_CONTAINS_LUMA
-                    #include "FXAAPass.hlsl"
-                ENDHLSL
+            HLSLPROGRAM
+                #pragma target 3.5
+                #pragma vertex DefaultPassVertex
+                #pragma fragment FXAAPassFragment
+                #pragma multi_compile _ FXAA_QUALITY_MEDIUM FXAA_QUALITY_LOW
+                //#define FXAA_QUALITY_LOW
+                #define FXAA_ALPHA_CONTAINS_LUMA
+                #include "FXAAPass.hlsl"
+            ENDHLSL
         }
         
     }

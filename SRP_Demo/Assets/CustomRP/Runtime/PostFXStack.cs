@@ -90,6 +90,9 @@ public partial class PostFXStack
 
     int fxaaConfigId = Shader.PropertyToID("_FXAAConfig");
 
+    const string
+        fxaaQaulityLowKeyword = "FXAA_QUALITY_LOW",
+        fxaaQaulityMediumKeyword = "FXAA_QUALITY_MEDIUM";
 
     public void Setup
         (ScriptableRenderContext context,
@@ -340,6 +343,33 @@ public partial class PostFXStack
         ));
     }
 
+    void ConfigureFXAA()
+    {
+        buffer.SetGlobalVector(fxaaConfigId, new Vector4(
+                fxaa.fixedThreshold, fxaa.relativeThreshold, fxaa.subpixelBlending, 0.0f));
+
+        if (fxaa.quailty == CameraBufferSettings.FXAA.Quailty.Low)
+        {
+            //Shader.EnableKeyword(fxaaQaulityLowKeyword);
+            //Shader.DisableKeyword(fxaaQaulityMediumKeyword);
+            buffer.EnableShaderKeyword(fxaaQaulityLowKeyword);
+            buffer.DisableShaderKeyword(fxaaQaulityMediumKeyword);
+            //Debug.Log(fxaa.quailty);
+        }
+        else if (fxaa.quailty == CameraBufferSettings.FXAA.Quailty.Medium)
+        {
+            buffer.DisableShaderKeyword(fxaaQaulityLowKeyword);
+            buffer.EnableShaderKeyword(fxaaQaulityMediumKeyword);
+        }
+        else 
+        {
+            buffer.DisableShaderKeyword(fxaaQaulityLowKeyword);
+            buffer.DisableShaderKeyword(fxaaQaulityMediumKeyword);
+        }
+
+        
+    }
+
     void DoFinal(int sourceId)
     {
         ConfigureColorAdjustments();
@@ -376,8 +406,8 @@ public partial class PostFXStack
         //check if we are using FXAA, if so add one more layer buffer
         if (fxaa.enabled)
         {
-            buffer.SetGlobalVector(fxaaConfigId, new Vector4(
-                fxaa.fixedThreshold, fxaa.relativeThreshold, fxaa.subpixelBlending, 0.0f));
+            ConfigureFXAA();
+            
             buffer.GetTemporaryRT(
                 colorGradingResultId, bufferSize.x, bufferSize.y, 0,
                 FilterMode.Bilinear, RenderTextureFormat.Default);

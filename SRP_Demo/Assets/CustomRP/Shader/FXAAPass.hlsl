@@ -1,9 +1,24 @@
 #ifndef CUSTOM_FXAA_PASS_INCLUDED
 #define CUSTOM_FXAA_PASS_INCLUDED
 
+#if defined(FXAA_QUALITY_LOW)
+#define EXTRA_EDGE_STEPS 3
+#define EDGE_STEP_SIZES 1.5, 2.0, 2.0
+#define LAST_EDGE_STEP_GUESS 8.0
+#define DEBUGPARAM 0.1
+#elif defined(FXAA_QUALITY_MEDIUM)
+#define EXTRA_EDGE_STEPS 8
+#define EDGE_STEP_SIZES 1.5, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0
+#define LAST_EDGE_STEP_GUESS 8.0
+#define DEBUGPARAM 0.5
+#else
+#define EXTRA_EDGE_STEPS 10
+#define EDGE_STEP_SIZES 1.0, 1.0, 1.0, 1.0, 1.5, 2.0, 2.0, 2.0, 2.0, 4.0
+#define LAST_EDGE_STEP_GUESS 8.0
+#define DEBUGPARAM 1.0
+#endif
+
 float4 _FXAAConfig;
-
-
 
 struct LumaNeighborhood {
 	float m, n, e, s, w, ne, se, sw, nw;
@@ -60,6 +75,7 @@ bool IsHorizontalEdge(LumaNeighborhood luma) {
 struct FXAAEdge {
 	bool isHorizontal;
 	float pixelStep;
+	float lumaGradient, otherLuma;
 };
 
 FXAAEdge GetFXAAEdge(LumaNeighborhood luma) {
@@ -81,9 +97,123 @@ FXAAEdge GetFXAAEdge(LumaNeighborhood luma) {
 
 	if (gradientP < gradientN)
 	{
+		//pixelStep is the pixel offset across the edge
 		edge.pixelStep = -edge.pixelStep;
+		edge.lumaGradient = gradientN;
+		edge.otherLuma = lumaN;
+	}
+	else
+	{
+		edge.lumaGradient = gradientP;
+		edge.otherLuma = lumaP;
 	}
 	return edge;
+}
+
+//search for edge end is performance heavy,
+//we have to limit the search steps, and a guess step and variable search steps to get some perf back
+//we can define quality settings for different settings 
+
+
+static const float edgeStepSize[EXTRA_EDGE_STEPS] = { EDGE_STEP_SIZES };
+
+float GetEdgeBlendFactor(LumaNeighborhood luma, FXAAEdge edge, float2 uv)
+{
+	//search for edge end in hori or verti
+	float2 edgeUV = uv;
+	float2 uvStep = 0.0;
+	//begin with 
+	if (edge.isHorizontal)
+	{
+		//sample average across the edge
+		edgeUV.y += 0.5 * edge.pixelStep;
+		uvStep.x = GetSourceTexelSize().x;
+	}
+	else
+	{
+		edgeUV.x += 0.5 * edge.pixelStep;
+		uvStep.y = GetSourceTexelSize().y;
+	}
+	//average luma across the edge on origin point
+	float edgeLuma = 0.5 * (luma.m + edge.otherLuma);
+	//use the 1/4 of the gradient across edge as threshold
+	float gradientThreshold = 0.25 * edge.lumaGradient;
+
+	//search toward positive direction
+	float2 uvP = edgeUV + uvStep;
+	//difference between AverLumaP and AverLuma
+	float lumaDeltaP = GetLuma(uvP) - edgeLuma;
+	//Differernce in averLuma is greater than 1/4 if the gradient across the edge,
+	//we consider the edge has ended
+	bool atEndP = abs(lumaDeltaP) >= gradientThreshold;
+	//search along the line to find edge change
+	UNITY_UNROLL//unroll the LOOP
+	for (int i = 0; i < EXTRA_EDGE_STEPS && !atEndP; i++)
+	{
+		uvP += uvStep * edgeStepSize[i];
+		lumaDeltaP = GetLuma(uvP) - edgeLuma;
+		atEndP = abs(lumaDeltaP) >= gradientThreshold;
+	}
+	if (!atEndP)
+	{
+		uvP += uvStep * LAST_EDGE_STEP_GUESS;
+	}
+
+	//search toward Negative direction
+	float2 uvN = edgeUV - uvStep;
+	float lumaDeltaN = GetLuma(uvN) - edgeLuma;
+	bool atEndN = abs(lumaDeltaN) >= gradientThreshold;
+	UNITY_UNROLL//unroll the LOOP
+	for ( i = 0; i < EXTRA_EDGE_STEPS && !atEndN; i++)
+	{
+		uvN -= uvStep * edgeStepSize[i];
+		lumaDeltaN = GetLuma(uvN) - edgeLuma;
+		atEndN = abs(lumaDeltaN) >= gradientThreshold;
+	}
+	if (!atEndN)
+	{
+		uvN -= uvStep * LAST_EDGE_STEP_GUESS;
+	}
+
+	
+	float distanceToEndP, distanceToEndN;
+	
+	if (edge.isHorizontal)
+	{
+		distanceToEndP = uvP.x - uv.x;
+		distanceToEndN = uv.x - uvN.x;
+	}
+	else
+	{
+		distanceToEndP = uvP.y - uv.y;
+		distanceToEndN = uv.y - uvN.y;
+	}
+	float diatanceToNearestEnd;
+	bool deltaSign;
+	if (distanceToEndP <= distanceToEndN)
+	{
+		diatanceToNearestEnd = distanceToEndP;
+		deltaSign = lumaDeltaP >= 0;
+	}
+	else
+	{
+		diatanceToNearestEnd = distanceToEndN;
+		deltaSign = lumaDeltaN >= 0;
+	}
+
+	//we only blend one side of a edge
+	//compare sign the lumaDelta edgeEnd_to_origin and lumaDelta across the edge
+	//if sign match, we are moving into the edge, need blend
+	bool edgeDeltaSign = edge.otherLuma >= luma.m;
+	if (deltaSign == edgeDeltaSign)
+	{
+		//blend 0~0.5 close to the edge end
+		return  0.5 - diatanceToNearestEnd /(distanceToEndN + distanceToEndP);
+	}
+	else
+	{
+		return 0.0;
+	}
 }
 
 float GetSubpixelBlendFactor(LumaNeighborhood luma) {
@@ -105,12 +235,19 @@ float4 FXAAPassFragment(Varyings input) : SV_TARGET
 	if (CanSkipFXAA(luma))
 	{
 		return GetSource(input.screenUV);
+		//return 0.0;
 	}
 	//return GetSubpixelBlendFactor(luma);
 
 	FXAAEdge edge = GetFXAAEdge(luma);
 
-	float blendFactor = GetSubpixelBlendFactor(luma);
+	//float blendFactor = GetSubpixelBlendFactor(luma);
+	float blendFactor = max(
+		GetEdgeBlendFactor(luma, edge, input.screenUV),
+		GetSubpixelBlendFactor(luma)
+	);
+	//return DEBUGPARAM;
+
 	float2 blendUV = input.screenUV;
 	if (edge.isHorizontal)
 	{
